@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api import api_router
+from instaclone.api import api_router
 
 app = FastAPI()
 
