@@ -2,6 +2,8 @@ from pydantic import EmailStr
 from sqlalchemy.sql import select
 
 from instaclone.app.user.models import User
+from instaclone.database.annotation import transactional
+from instaclone.database.connection import SESSION
 
 class UserStore:
     async def get_user_by_username(self, username: str) -> User:
