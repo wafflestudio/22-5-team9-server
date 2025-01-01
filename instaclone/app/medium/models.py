@@ -11,9 +11,9 @@ class Medium(Base):
     __tablename__ = "media"
 
     # post_id
-    post_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("post.post_id"), nullable=True)
+    post_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("posts.post_id"), nullable=True)
     # story_id
-    story_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("story.story_id"), nullable=True)
+    story_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("stories.story_id"), nullable=True)
     # image_id
     image_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     # file_name
