@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import BigInteger, DATETIME, ForeignKey
+from datetime import datetime, timedelta
+from sqlalchemy import BigInteger, DATETIME, ForeignKey, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -25,3 +26,12 @@ class Story(Base):
     # 1(story) to N(media)
     media: Mapped[list["Medium"]] = relationship("Medium", back_populates="story")
     
+    
+    @staticmethod
+    def calculate_expiration_date(creation_date: datetime) -> datetime:
+        return creation_date + timedelta(hours=24)
+    
+@event.listens_for(Story, "before_insert")
+def set_expiration_date(_, __, target: Story):
+    if target.expiration_date is None:
+        target.expiration_date = target.calculate_expiration_date(target.creation_date)
