@@ -14,8 +14,10 @@ class Story(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
     # story_id
     story_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    # expiration_date : YYYY-MM-DD HH:MM:SS
-    expiration_date: Mapped[DATETIME] = mapped_column(DATETIME)
+    # creation_date : YYYY-MM-DD
+    creation_date: Mapped[datetime] = mapped_column(DATETIME, default=datetime.utcnow)
+    # expiration_date
+    expiration_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
 
 
     # relationships
