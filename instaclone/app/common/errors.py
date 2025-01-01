@@ -14,3 +14,7 @@ class InvalidTokenError(HTTPException):
 class BlockedTokenError(HTTPException):
     def __init__(self) -> None:
         super().__init__(HTTP_401_UNAUTHORIZED, "The token has been blocked.")
+
+class InvalidCredentialsError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "Invalid credentials.")
