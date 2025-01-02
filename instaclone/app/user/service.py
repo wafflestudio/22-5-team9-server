@@ -15,7 +15,7 @@ from instaclone.app.auth.utils import (
     create_access_token,
     create_refresh_token
 )
-from instaclone.app.common.utils import identify_input_type
+from instaclone.common.utils import identify_input_type
 from instaclone.app.user.models import User
 from instaclone.app.user.store import UserStore
 import jwt

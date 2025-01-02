@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from starlette.status import HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 
 
 class InstacloneHttpException(HTTPException):
@@ -15,3 +15,15 @@ class InvalidFieldFormatError(InstacloneHttpException):
 class MissingRequiredFieldError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, "Missing required fields")
+
+class ExpiredSignatureError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "The token has expired.")
+
+class InvalidTokenError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "Invalid token.")
+
+class BlockedTokenError(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "The token has been blocked.")

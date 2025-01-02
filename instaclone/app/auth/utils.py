@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from instaclone.app.common.errors import (
+from instaclone.common.errors import (
     ExpiredSignatureError,
     InvalidTokenError,
     BlockedTokenError
