@@ -9,7 +9,7 @@ from instaclone.app.common.errors import (
 
 import jwt
 
-SECRET_KEY = "secret_instaclone"
+SECRET_KEY = "secret_for_jwt"
 
 def create_access_token(username: str, expires: timedelta) -> str:
     """
