@@ -1,4 +1,5 @@
 from typing import Sequence
+from datetime import datetime
 from pydantic import EmailStr
 from sqlalchemy.sql import select
 from sqlalchemy.orm import joinedload
@@ -31,5 +32,18 @@ class UserStore:
         user.full_name = full_name
         user.introduce = introduce
         user.profile_image = profile_image
+        SESSION.add(user)
+        return user
+    
+    @transactional
+    async def add_user(
+        self,
+        username: str,
+        password: str,
+        full_name: str,
+        email: EmailStr,
+        phone_number: str
+    ) -> User:
+        user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date())
         SESSION.add(user)
         return user

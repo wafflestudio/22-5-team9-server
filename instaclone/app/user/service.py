@@ -83,3 +83,12 @@ class UserService:
         refresh_token = create_refresh_token(username, expires=timedelta(hours=24))
 
         return access_token, refresh_token
+    
+    async def signup(self,
+        username: str,
+        password: str,
+        full_name: str,
+        email: EmailStr, 
+        phone_number: str
+    ) -> User:
+        return await self.user_store.add_user(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number)

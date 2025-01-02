@@ -61,6 +61,12 @@ def validate_website(url: str) -> str:
         raise InvalidFieldFormatError("Invalid website URL.")
     return url
 
+def validate_password(password: str) -> str:
+    if len(password) >= 6:
+        return password
+    else:
+        raise InvalidFieldFormatError(f"Password is too short.")
+
 
 class UserEditRequest(BaseModel):
     username: Annotated[Optional[str], AfterValidator(skip_none(validate_username))] = None
@@ -72,3 +78,10 @@ class UserEditRequest(BaseModel):
 class UserSigninRequest(BaseModel):
     username: str
     password: str
+
+class UserSignupRequest(BaseModel):
+    username: Annotated[str, AfterValidator(skip_none(validate_username))]
+    password: Annotated[str, AfterValidator(skip_none(validate_password))]
+    full_name: Annotated[str, AfterValidator(skip_none(validate_full_name))]
+    email: EmailStr
+    phone_number: Annotated[str, AfterValidator(skip_none(validate_phone_number))]

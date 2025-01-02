@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest
+from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest
 from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse
 from instaclone.app.user.service import UserService
 
@@ -11,7 +11,7 @@ from instaclone.app.user.dto.requests import UserEditRequest
 from instaclone.app.user.errors import InvalidTokenError
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from starlette.status import HTTP_200_OK
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 user_router = APIRouter()
 
@@ -55,3 +55,11 @@ async def signin(
     access_token, refresh_token = await user_service.signin(signin_request.username, signin_request.password)
     
     return UserSigninResponse(access_token=access_token, refresh_token=refresh_token)
+
+@user_router.post("/signup", status_code=HTTP_201_CREATED)
+async def signup(
+    user_service: Annotated[UserService, Depends()],
+    signup_request: UserSignupRequest
+):
+    await user_service.signup(signup_request.username, signup_request.password, signup_request.full_name, signup_request.email, signup_request.phone_number)
+    return "SUCCESS"
