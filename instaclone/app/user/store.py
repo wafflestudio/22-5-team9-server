@@ -28,11 +28,17 @@ class UserStore:
         introduce: str,
         profile_image: str
     ) -> User:
+        user_in_session = await SESSION.get(User, user.user_id)  # Load the user from the current session
+        if user_in_session is None:
+            # If the user is not in the session, merge it into the current session
+            user = SESSION.merge(user)
+
         user.username = username
         user.full_name = full_name
         user.introduce = introduce
         user.profile_image = profile_image
-        SESSION.add(user)
+
+        await SESSION.flush()
         return user
     
     @transactional
