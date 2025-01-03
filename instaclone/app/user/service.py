@@ -49,7 +49,7 @@ class UserService:
             payload = jwt.decode(
                 token, SECRET, algorithms=["HS256"], options={"require": ["sub"]}
             )
-            if payload["typ"] != TokenType.ACCESS.value:
+            if payload["type"] != TokenType.ACCESS.value:
                 raise InvalidTokenError()
             return payload["sub"]
         except jwt.ExpiredSignatureError:
