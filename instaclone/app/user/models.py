@@ -1,12 +1,12 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from pydantic import EmailStr
 from enum import Enum
-from sqlalchemy import String, BigInteger, Date
+from sqlalchemy import String, BigInteger, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
 if TYPE_CHECKING:
-    from instaclone.app.follower.models import Follower
+    #from instaclone.app.follower.models import Follower
     from instaclone.app.post.models import Post
     from instaclone.app.story.models import Story
     from instaclone.app.comment.models import Comment
@@ -15,6 +15,30 @@ if TYPE_CHECKING:
 #     male = "M"
 #     female = "F"
 #     none = "N"
+
+class Follower(Base):
+    __tablename__ = "followers"
+
+    follower_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id"), primary_key=True
+    )
+    following_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id"), primary_key=True
+    )
+
+    # "follower" -> the User who follows
+    follower: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[follower_id],
+        back_populates="following_users",
+    )
+    # "following" -> the User being followed
+    following: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[following_id],
+        back_populates="follower_users",
+    )
+
 
 class User(Base):
     __tablename__ = "users"
@@ -49,8 +73,16 @@ class User(Base):
 
     # relationships
     # 1(user) to N(others)
-    follower_users: Mapped[list["Follower"]] = relationship("Follower", back_populates="following", foreign_keys="Follower.following_id")
-    following_users: Mapped[list["Follower"]] = relationship("Follower", back_populates="follower", foreign_keys="Follower.follower_id")    
+    follower_users: Mapped[List["Follower"]] = relationship(
+        "Follower",
+        foreign_keys="[Follower.following_id]",  # string-based to avoid import issues
+        back_populates="following",
+    )
+    following_users: Mapped[List["Follower"]] = relationship(
+        "Follower",
+        foreign_keys="[Follower.follower_id]",
+        back_populates="follower",
+    )
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="user")
-    stories: Mapped[list["Story"]] = relationship("Story", back_populates="user")
-    comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
+    #stories: Mapped[list["Story"]] = relationship("Story", back_populates="user")
+    #comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
