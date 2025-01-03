@@ -44,6 +44,6 @@ class UserStore:
         email: EmailStr,
         phone_number: str
     ) -> User:
-        user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date())
+        user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image="test_image", gender="test", birthday=datetime.today().date(), introduce="test", website="test")
         SESSION.add(user)
         return user
