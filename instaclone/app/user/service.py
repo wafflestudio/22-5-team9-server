@@ -65,7 +65,21 @@ class UserService:
         introduce: str,
         profile_image: str
     ) -> User:
-        return await self.user_store.edit_user(user=user, username=username, full_name=full_name, introduce=introduce, profile_image=profile_image)
+        if user.username != username:
+            existing_user = await self.get_user_by_username(username)
+            if existing_user:
+                raise ValueError("Username is already taken.")
+    
+        # Update the user
+        updated_user = await self.user_store.edit_user(
+            user=user,
+            username=username,
+            full_name=full_name,
+            introduce=introduce,
+            profile_image=profile_image,
+        )
+        return updated_user
+    
     
     async def signin(self, username: str, password: str) -> tuple[str, str]:
         username_type = identify_input_type(username)
