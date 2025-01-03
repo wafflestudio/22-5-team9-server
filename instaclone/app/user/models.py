@@ -77,12 +77,14 @@ class User(Base):
         "Follower",
         foreign_keys="[Follower.following_id]",  # string-based to avoid import issues
         back_populates="following",
+        lazy="selectin"
     )
     following_users: Mapped[List["Follower"]] = relationship(
         "Follower",
         foreign_keys="[Follower.follower_id]",
         back_populates="follower",
+        lazy="selectin"
     )
-    posts: Mapped[list["Post"]] = relationship("Post", back_populates="user")
+    posts: Mapped[list["Post"]] = relationship("Post", back_populates="user", lazy="selectin")
     #stories: Mapped[list["Story"]] = relationship("Story", back_populates="user")
     #comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
