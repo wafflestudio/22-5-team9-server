@@ -33,7 +33,7 @@ class UserStore:
         if user_in_session is None:
             # If the user is not in the session, merge it into the current session
             user = await SESSION.merge(user)
-        if self.get_user_by_username(username):
+        if await self.get_user_by_username(username):
             raise UsernameAlreadyExistsError()
 
         user.username = username
@@ -53,11 +53,11 @@ class UserStore:
         email: EmailStr,
         phone_number: str
     ) -> User:
-        if self.get_user_by_username(username):
+        if await self.get_user_by_username(username):
             raise UsernameAlreadyExistsError()
-        if self.get_user_by_email(email):
+        if await self.get_user_by_email(email):
             raise EmailAlreadyExistsError()
-        if self.get_user_by_phone_number(phone_number):
+        if await self.get_user_by_phone_number(phone_number):
             raise PhoneNumberAlreadyExistsError()
         user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image="test_image", gender="test", birthday=datetime.today().date(), introduce="test", website="test")
         SESSION.add(user)
