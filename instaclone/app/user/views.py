@@ -40,10 +40,10 @@ async def update_me(
 ) -> UserDetailResponse:
     await user_service.edit_user(
         user=user,
-        username=edit_request.username or user.username,
-        full_name=edit_request.full_name or user.full_name,
-        introduce=edit_request.introduce or user.introduce,
-        profile_image=edit_request.profile_image or user.profile_image
+        username=edit_request.username,
+        full_name=edit_request.full_name,
+        introduce=edit_request.introduce,
+        profile_image=edit_request.profile_image
     )
     return UserDetailResponse.from_user(user)
 
