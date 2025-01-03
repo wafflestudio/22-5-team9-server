@@ -10,6 +10,9 @@ class UsernameAlreadyExistsError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(409, "Username already exists")
 
+class PhoneNumberAlreadyExistsError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(409, "Phone number already exists")
 
 class UserUnsignedError(InstacloneHttpException):
     def __init__(self) -> None:
