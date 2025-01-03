@@ -36,15 +36,15 @@ class User(Base):
     # profile_image : file path string
     profile_image: Mapped[str] = mapped_column(String(100))
 
-    # # gender
-    # # gender : Mapped[Enum] = mapped_column(Gender)
-    # gender: Mapped[str] = mapped_column(String(10))
-    # # birthday
-    # birthday: Mapped[Date] = mapped_column(Date)
-    # # introduce
-    # introduce: Mapped[str] = mapped_column(String(100))
-    # # website
-    # website: Mapped[str] = mapped_column(String(100))
+    # gender
+    # gender : Mapped[Enum] = mapped_column(Gender)
+    gender: Mapped[str] = mapped_column(String(10))
+    # birthday
+    birthday: Mapped[Date] = mapped_column(Date)
+    # introduce
+    introduce: Mapped[str] = mapped_column(String(100))
+    # website
+    website: Mapped[str] = mapped_column(String(100))
 
 
     # relationships
