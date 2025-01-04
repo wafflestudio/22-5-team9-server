@@ -60,12 +60,12 @@ class UserService:
     async def edit_user(
         self,
         user: User,
-        username : str,
-        full_name: str,
-        introduce: str,
-        profile_image: str
+        username : str | None,
+        full_name: str | None,
+        introduce: str | None,
+        profile_image: str | None
     ) -> User:
-        if user.username != username:
+        if username != None and username != user.username:
             existing_user = await self.get_user_by_username(username)
             if existing_user:
                 raise ValueError("Username is already taken.")

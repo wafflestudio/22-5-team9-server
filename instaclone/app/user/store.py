@@ -24,22 +24,24 @@ class UserStore:
     async def edit_user(
         self, 
         user: User,
-        username : str,
-        full_name: str,
-        introduce: str,
-        profile_image: str
+        username : str | None,
+        full_name: str | None,
+        introduce: str | None,
+        profile_image: str | None
     ) -> User:
         user_in_session = await SESSION.get(User, user.user_id)  # Load the user from the current session
         if user_in_session is None:
             # If the user is not in the session, merge it into the current session
             user = await SESSION.merge(user)
-        if self.get_user_by_username(username):
-            raise UsernameAlreadyExistsError()
 
-        user.username = username
-        user.full_name = full_name
-        user.introduce = introduce
-        user.profile_image = profile_image
+        if username:
+            user.username = username
+        if full_name:
+            user.full_name = full_name
+        if introduce:
+            user.introduce = introduce
+        if profile_image:
+            user.profile_image = profile_image
 
         await SESSION.flush()
         return user
@@ -53,11 +55,11 @@ class UserStore:
         email: EmailStr,
         phone_number: str
     ) -> User:
-        if self.get_user_by_username(username):
+        if await self.get_user_by_username(username):
             raise UsernameAlreadyExistsError()
-        if self.get_user_by_email(email):
+        if await self.get_user_by_email(email):
             raise EmailAlreadyExistsError()
-        if self.get_user_by_phone_number(phone_number):
+        if await self.get_user_by_phone_number(phone_number):
             raise PhoneNumberAlreadyExistsError()
         user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image="test_image", gender="test", birthday=datetime.today().date(), introduce="test", website="test")
         SESSION.add(user)

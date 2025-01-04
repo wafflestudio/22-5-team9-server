@@ -11,7 +11,7 @@ def validate_phone_number(value: str | None) -> str | None:
     if value is None:
         return None
     if not value.startswith("010") or not len(value) == 11 or not value.isdigit():
-        raise InvalidFieldFormatError()
+        raise InvalidFieldFormatError("Phone number must be 11 digits beginning with 010.")
     return value
 
 def identify_input_type(input_str: str) -> Optional[str]:
