@@ -33,6 +33,8 @@ class UserStore:
         if user_in_session is None:
             # If the user is not in the session, merge it into the current session
             user = await SESSION.merge(user)
+        else:
+            user = user_in_session
 
         if username:
             user.username = username
@@ -45,7 +47,7 @@ class UserStore:
 
         await SESSION.flush()
         return user
-    
+  
     @transactional
     async def add_user(
         self,
