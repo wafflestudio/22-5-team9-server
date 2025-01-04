@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from enum import Enum
 from typing import Annotated
 from uuid import uuid4
@@ -103,6 +103,11 @@ class UserService:
         password: str,
         full_name: str,
         email: EmailStr, 
-        phone_number: str
+        phone_number: str,
+        gender: str | None,
+        birthday: date | None,
+        profile_image: str | None,
+        introduce: str | None,
+        website: str | None
     ) -> User:
-        return await self.user_store.add_user(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number)
+        return await self.user_store.add_user(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, gender=gender, birthday=birthday, profile_image=profile_image, introduce=introduce, website=website)

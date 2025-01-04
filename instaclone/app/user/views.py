@@ -60,6 +60,17 @@ async def signin(
 async def signup(
     user_service: Annotated[UserService, Depends()],
     signup_request: UserSignupRequest
-):
-    await user_service.signup(signup_request.username, signup_request.password, signup_request.full_name, signup_request.email, signup_request.phone_number)
+) -> str:
+    await user_service.signup(
+        signup_request.username, 
+        signup_request.password, 
+        signup_request.full_name, 
+        signup_request.email, 
+        signup_request.phone_number, 
+        signup_request.gender, 
+        signup_request.birthday, 
+        signup_request.profile_image, 
+        signup_request.introduce,
+        signup_request.website
+    )
     return "SUCCESS"

@@ -62,13 +62,13 @@ class User(Base):
 
     # gender
     # gender : Mapped[Enum] = mapped_column(Gender)
-    gender: Mapped[str] = mapped_column(String(10))
+    gender: Mapped[str] = mapped_column(String(10), nullable=True)
     # birthday
-    birthday: Mapped[Date] = mapped_column(Date)
+    birthday: Mapped[Date] = mapped_column(Date, nullable=True)
     # introduce
-    introduce: Mapped[str] = mapped_column(String(100))
+    introduce: Mapped[str] = mapped_column(String(100), nullable=True)
     # website
-    website: Mapped[str] = mapped_column(String(100))
+    website: Mapped[str] = mapped_column(String(100), nullable=True)
 
 
     # relationships

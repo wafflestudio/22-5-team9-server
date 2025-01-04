@@ -1,5 +1,5 @@
 from typing import Sequence
-from datetime import datetime
+from datetime import datetime, date
 from pydantic import EmailStr
 from sqlalchemy.sql import select
 from sqlalchemy.orm import joinedload
@@ -53,14 +53,24 @@ class UserStore:
         password: str,
         full_name: str,
         email: EmailStr,
-        phone_number: str
+        phone_number: str,
+        gender: str | None = None,
+        birthday: date | None = None,
+        profile_image: str | None = None,
+        introduce: str | None = None,
+        website: str | None = None
     ) -> User:
+        image_path = profile_image
         if await self.get_user_by_username(username):
             raise UsernameAlreadyExistsError()
         if await self.get_user_by_email(email):
             raise EmailAlreadyExistsError()
         if await self.get_user_by_phone_number(phone_number):
             raise PhoneNumberAlreadyExistsError()
-        user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image="test_image", gender="test", birthday=datetime.today().date(), introduce="test", website="test")
+        
+        if image_path is None:
+            image_path = "DEFAULT_PATH"
+
+        user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image=image_path, gender=gender, birthday=birthday, introduce=introduce, website=website)
         SESSION.add(user)
         return user

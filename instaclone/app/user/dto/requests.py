@@ -85,3 +85,8 @@ class UserSignupRequest(BaseModel):
     full_name: Annotated[str, AfterValidator(skip_none(validate_full_name))]
     email: EmailStr
     phone_number: Annotated[str, AfterValidator(skip_none(validate_phone_number))]
+    birthday: Optional[date] = None
+    gender: Optional[str] = None
+    profile_image: Annotated[Optional[str], AfterValidator(skip_none(validate_profile_image))] = None
+    introduce: Annotated[Optional[str], AfterValidator(skip_none(validate_description))] = None
+    website: Annotated[Optional[str], AfterValidator(skip_none(validate_website))] = None
