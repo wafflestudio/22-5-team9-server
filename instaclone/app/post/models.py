@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import BigInteger, String, ForeignKey
+from datetime import datetime
+from sqlalchemy import BigInteger, String, ForeignKey, DATETIME
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -20,10 +21,12 @@ class Post(Base):
     location: Mapped[str | None] = mapped_column(String(50), nullable=True)
     # post_text
     post_text: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # creation_date : YYYY-MM-DD
+    creation_date: Mapped[datetime] = mapped_column(DATETIME, default=datetime.utcnow)
 
 
     # relationships
     user: Mapped["User"] = relationship("User", back_populates="posts")
     # 1(story) to N(media)
-    media: Mapped[list["Medium"]] = relationship("Medium", back_populates="post")
-    comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="post")
+    #media: Mapped[list["Medium"]] = relationship("Medium", back_populates="post")
+    #comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="post")
