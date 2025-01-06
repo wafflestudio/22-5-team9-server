@@ -20,7 +20,6 @@ class UserStore:
     async def get_user_by_phone_number(self, phone_number: str) -> User | None:
         return await SESSION.scalar(select(User).where(User.phone_number == phone_number))
     
-    @transactional
     async def edit_user(
         self, 
         user: User,
@@ -45,7 +44,7 @@ class UserStore:
         if profile_image:
             user.profile_image = profile_image
 
-        await SESSION.flush()
+        await SESSION.commit()
         return user
   
     @transactional
