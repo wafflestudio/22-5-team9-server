@@ -1,7 +1,10 @@
 from typing import Annotated
 from fastapi import Depends
+
 from instaclone.app.post.models import Post
 from instaclone.app.post.store import PostStore
+from instaclone.app.post.errors import PostNotFoundError
+
 
 class PostService:
     def __init__(self, post_store: Annotated[PostStore, Depends()]) -> None:
@@ -13,7 +16,7 @@ class PostService:
     async def get_post(self, post_id: int) -> Post:
         post = await self.post_store.get_post_by_id(post_id)
         if not post:
-            raise ValueError("Post not found.")
+            raise PostNotFoundError
         return post
 
     async def get_user_posts(self, user_id: int) -> list[Post]:

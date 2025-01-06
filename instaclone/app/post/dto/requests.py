@@ -28,6 +28,6 @@ def validate_text(text: str) -> str:
     return text
 
 class PostRequest(BaseModel):
-    user_id: Annotated[int, None]
+    #user_id: Annotated[int, None]
     location: Annotated[Optional[str], AfterValidator(skip_none(validate_address))]
     post_text: Annotated[Optional[str], AfterValidator(skip_none(validate_text))]
