@@ -11,6 +11,12 @@ class MediumService:
         self.medium_store = medium_store
 
         # Make S3 client
+        #self.s3_client = boto3.client(
+        #    "s3",
+        #    aws_access_key_id="your-access-key",
+        #    aws_secret_access_key="your-secret-key",
+        #    region_name="your-region",
+        #)
         self.s3_client = boto3.client("s3")
         self.bucket_name = "your-s3-bucket-name"
 
