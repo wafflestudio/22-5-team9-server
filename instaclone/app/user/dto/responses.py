@@ -16,7 +16,7 @@ class UserDetailResponse(BaseModel):
     phone_number: str
     creation_date: date
     profile_image: str
-    gender: str
+    gender: str | None
     birthday: date | None
     introduce: str | None
     website: str | None
