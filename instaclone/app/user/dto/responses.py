@@ -17,9 +17,9 @@ class UserDetailResponse(BaseModel):
     creation_date: date
     profile_image: str
     gender: str
-    birthday: date
-    introduce: str
-    website: str
+    birthday: date | None
+    introduce: str | None
+    website: str | None
     follwers: int
     following: int
     post_count: int
@@ -27,7 +27,7 @@ class UserDetailResponse(BaseModel):
 
     @staticmethod
     def from_user(user: User) -> "UserDetailResponse":
-        if not isinstance(user.birthday, date):
+        if user.birthday != None and not isinstance(user.birthday, date):
             raise InvalidFieldFormatError("Expected a valid SQLAlchemy `Date` or `datetime.date` object")
         if not isinstance(user.creation_date, date):
             raise InvalidFieldFormatError("Expected a valid SQLAlchemy `Date` or `datetime.date` object")
