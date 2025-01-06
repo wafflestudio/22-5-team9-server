@@ -13,7 +13,7 @@ class Medium(Base):
     # post_id
     post_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("posts.post_id"), nullable=True)
     # story_id
-    story_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("stories.story_id"), nullable=True)
+    #story_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("stories.story_id"), nullable=True)
     # image_id
     image_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     # file_name
@@ -27,4 +27,4 @@ class Medium(Base):
 
     # relationships
     post: Mapped[Optional["Post"]] = relationship("Post", back_populates="media")
-    story: Mapped[Optional["Story"]] = relationship("Story", back_populates="media")
+    #story: Mapped[Optional["Story"]] = relationship("Story", back_populates="media")
