@@ -12,7 +12,7 @@ class Comment(Base):
     __tablename__ = "comments"
 
     # user_id
-    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.user_id"))
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
     # post_id
     post_id: Mapped[int] = mapped_column(BigInteger)
     # comment_id
