@@ -1,10 +1,9 @@
 from typing import List
 from pydantic import BaseModel
-
-from instaclone.app.medium.models import Medium
+from fastapi import UploadFile
 
 class StoryCreateRequest(BaseModel):
-    media: List["Medium"]
+    media: List[UploadFile]
 
 class StoryEditRequest(BaseModel):
-    media: List["Medium"]
+    media: List[UploadFile]

@@ -1,0 +1,31 @@
+from typing import Annotated, Sequence, List
+from fastapi import Depends
+
+from instaclone.app.story.store import StoryStore
+from instaclone.app.user.models import User
+from instaclone.app.story.models import Story
+from instaclone.app.medium.models import Medium
+
+class StoryService:
+    def __init__(self, story_store: Annotated[StoryStore, Depends()]):
+        self.story_store = story_store
+
+    async def create_story(self, user: User, media: List["Medium"]) -> Story:
+        story = await self.story_store.add_story(user, media)
+        return story
+    
+    async def get_story(self, story_id: int) -> Story:
+        story = await self.story_store.get_story(story_id)
+        return story
+    
+    async def get_story_list(self, user_id: int) -> Sequence["Story"]:
+        user = await self.story_store.get_user_from_id(user_id)
+        story_list = await self.story_store.get_story_list(user)
+        return story_list
+    
+    async def edit_story(self, user: User, story_id: int, media: List["Medium"]) -> Story:
+        edited_story = await self.story_store.edit_story(user, media, story_id)
+        return edited_story
+    
+    async def delete_story(self, user: User, story_id: int):
+        await self.story_store.delete_story(user, story_id)
