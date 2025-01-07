@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from instaclone.app.post.dto.requests import PostRequest
+from instaclone.app.post.dto.requests import PostPutRequest, PostGetRequest
 from instaclone.app.post.dto.responses import PostDetailResponse
 from instaclone.app.post.service import PostService
 from instaclone.app.user.models import User
@@ -12,7 +12,7 @@ post_router = APIRouter()
 
 @post_router.post("/", status_code=HTTP_201_CREATED)
 async def create_post(
-    post_request: PostRequest,
+    post_request: PostPutRequest,
     user: Annotated[User, Depends(login_with_header)],
     post_service: Annotated[PostService, Depends()],
 ) -> PostDetailResponse:

@@ -27,7 +27,10 @@ def validate_text(text: str) -> str:
         raise InvalidFieldFormatError(f"Text: {len(text)}/500 chars")
     return text
 
-class PostRequest(BaseModel):
-    #user_id: Annotated[int, None]
+class PostPutRequest(BaseModel):
     location: Annotated[Optional[str], AfterValidator(skip_none(validate_address))]
     post_text: Annotated[Optional[str], AfterValidator(skip_none(validate_text))]
+
+class PostGetRequest(BaseModel):
+    post_id: Optional[int] = None
+    user_id: Optional[int] = None
