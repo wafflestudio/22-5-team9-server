@@ -29,7 +29,7 @@ async def login_with_header(
 
 @user_router.get("/profile", status_code=HTTP_200_OK)
 async def me(user: Annotated[User, Depends(login_with_header)]) -> UserDetailResponse:
-    return UserDetailResponse.from_user(user)
+    return await UserDetailResponse.from_user(user)
 
 @user_router.patch("/profile/edit", status_code=HTTP_200_OK)
 async def update_me(
