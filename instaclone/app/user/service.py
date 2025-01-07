@@ -10,6 +10,7 @@ from instaclone.app.user.errors import (
     ExpiredSignatureError,
     InvalidTokenError,
     InvalidUsernameOrPasswordError,
+    UsernameAlreadyExistsError
 )
 from instaclone.app.auth.utils import (
     create_access_token,
@@ -70,7 +71,7 @@ class UserService:
         if username != None and username != user.username:
             existing_user = await self.get_user_by_username(username)
             if existing_user:
-                raise ValueError("Username is already taken.")
+                raise UsernameAlreadyExistsError()
     
         # Update the user
         updated_user = await self.user_store.edit_user(
