@@ -5,6 +5,7 @@ from datetime import datetime, date, timedelta
 from sqlalchemy import Date
 import re
 from functools import wraps
+from enum import Enum
 
 
 from instaclone.common.errors import InvalidFieldFormatError
@@ -66,7 +67,13 @@ def validate_password(password: str) -> str:
         return password
     else:
         raise InvalidFieldFormatError(f"Password is too short.")
+    
 
+class GenderEnum(str, Enum):
+    MALE = "Male"
+    Female = "Female"
+    Other = "Other"
+    Unknown = None
 
 class UserEditRequest(BaseModel):
     username: Annotated[Optional[str], AfterValidator(skip_none(validate_username))] = None
@@ -74,6 +81,7 @@ class UserEditRequest(BaseModel):
     profile_image: Annotated[Optional[str], AfterValidator(skip_none(validate_profile_image))] = None
     introduce: Annotated[Optional[str], AfterValidator(skip_none(validate_description))] = None
     website: Annotated[Optional[str], AfterValidator(skip_none(validate_website))] = None
+    gender: Annotated[Optional[GenderEnum], None] = None
 
 class UserSigninRequest(BaseModel):
     username: str

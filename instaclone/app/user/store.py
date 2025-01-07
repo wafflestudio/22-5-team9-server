@@ -20,14 +20,15 @@ class UserStore:
     async def get_user_by_phone_number(self, phone_number: str) -> User | None:
         return await SESSION.scalar(select(User).where(User.phone_number == phone_number))
     
-    @transactional
     async def edit_user(
         self, 
         user: User,
         username : str | None,
         full_name: str | None,
         introduce: str | None,
-        profile_image: str | None
+        profile_image: str | None,
+        website: str | None,
+        gender: str | None
     ) -> User:
         user_in_session = await SESSION.get(User, user.user_id)  # Load the user from the current session
         if user_in_session is None:
@@ -44,8 +45,12 @@ class UserStore:
             user.introduce = introduce
         if profile_image:
             user.profile_image = profile_image
+        if website:
+            user.website = website
+        if gender:
+            user.gender = gender
 
-        await SESSION.flush()
+        await SESSION.commit()
         return user
   
     @transactional
