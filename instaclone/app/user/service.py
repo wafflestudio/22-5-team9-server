@@ -63,7 +63,9 @@ class UserService:
         username : str | None,
         full_name: str | None,
         introduce: str | None,
-        profile_image: str | None
+        profile_image: str | None,
+        website: str | None,
+        gender: str | None
     ) -> User:
         if username != None and username != user.username:
             existing_user = await self.get_user_by_username(username)
@@ -77,6 +79,8 @@ class UserService:
             full_name=full_name,
             introduce=introduce,
             profile_image=profile_image,
+            website=website,
+            gender=gender
         )
         return updated_user
     
