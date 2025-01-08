@@ -1,4 +1,4 @@
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_413_REQUEST_ENTITY_TOO_LARGE
 
 from instaclone.common.errors import InstacloneHttpException
 
@@ -17,3 +17,7 @@ class StoryNotExistsError(InstacloneHttpException):
 class StoryAlreadyExpired(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, "Story is already expired")
+
+class FileSizeLimitError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_413_REQUEST_ENTITY_TOO_LARGE, "File is too large")
