@@ -24,7 +24,7 @@ class Story(Base):
     # relationships
     user: Mapped["User"] = relationship("User", back_populates="stories")
     # 1(story) to N(media)
-    media: Mapped[list["Medium"]] = relationship("Medium", back_populates="story")
+    media: Mapped[list["Medium"]] = relationship("Medium", back_populates="story", lazy="selectin")
     
     
     @staticmethod

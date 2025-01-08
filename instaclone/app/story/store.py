@@ -16,14 +16,21 @@ class StoryStore:
             raise UserNotFoundError()
         return user
 
-    @transactional
+    # @transactional
     async def add_story(
         self, 
         user: User,
         media: List["Medium"]
     ) -> Story:
+        user_in_session = await SESSION.get(User, user.user_id)
+        if user_in_session is None:
+            user = await SESSION.merge(user)
+        else:
+            user = user_in_session
+
         story = Story(user=user, media=media, creation_date=datetime.now(timezone.utc))
         SESSION.add(story)
+        await SESSION.commit()
         return story
     
     async def get_story_list(
@@ -32,7 +39,7 @@ class StoryStore:
     ) -> Sequence["Story"]:
         query = select(Story).where(
             Story.user_id == user.user_id,
-            Story.expiration_date < datetime.now(timezone.utc)
+            Story.expiration_date > datetime.now(timezone.utc)
         ).order_by(Story.creation_date)
 
         result = await SESSION.scalars(query)
@@ -40,7 +47,7 @@ class StoryStore:
 
         return stories
     
-    async def get_story(
+    async def get_story_by_id(
         self,
         story_id: int
     ) -> Story:
@@ -66,9 +73,8 @@ class StoryStore:
             raise StoryNotExistsError()
         if story.user_id != user.user_id:
             raise StoryPermissionError()
-        
         story.media = media
-        await SESSION.flush()
+        await SESSION.commit()
         return story
 
     @transactional
@@ -86,7 +92,15 @@ class StoryStore:
             raise StoryPermissionError()
         
         delete_query = delete(Story).where(Story.story_id == story_id)
+        await SESSION.execute(delete(Medium).where(Medium.story_id == story_id))
         await SESSION.execute(delete_query)
 
         return "SUCCESS"
+    
+    @transactional
+    async def add_medium(self, file_name: str, file_path: str):
+        medium = Medium(file_name=file_name, url=file_path)
+        SESSION.add(medium)
+        await SESSION.commit()
+        return medium
         

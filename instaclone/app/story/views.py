@@ -1,5 +1,5 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, File
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 from instaclone.app.user.views import login_with_header
@@ -16,10 +16,11 @@ story_router = APIRouter()
 async def create_story(
     user: Annotated[User, Depends(login_with_header)],
     # story_create_request: StoryCreateRequest,
+    files: List[UploadFile],
     story_service: Annotated[StoryService, Depends()]
 ) -> StoryDetailResponse:
     # List[UploadFile] -> List[Medium]
-    media: List["Medium"]
+    media = [await story_service.file_to_medium(file) for file in files]
     story = await story_service.create_story(user, media)
     return StoryDetailResponse.from_story(story)
 
@@ -43,11 +44,12 @@ async def get_stories(
 async def edit_story(
     user: Annotated[User, Depends(login_with_header)],
     # story_edit_request: StoryEditRequest,
+    files: List[UploadFile],
     story_id: int,
     story_service: Annotated[StoryService, Depends()]
 ) -> StoryDetailResponse:
     # List[UploadFile] -> List[Medium]
-    media: List["Medium"]
+    media = [await story_service.file_to_medium(file) for file in files]
     story = await story_service.edit_story(user, story_id, media)
     return StoryDetailResponse.from_story(story)
 
