@@ -59,7 +59,7 @@ class StoryStore:
 
         return story
     
-    @transactional
+    # @transactional
     async def edit_story(
         self,
         user: User,
@@ -77,7 +77,7 @@ class StoryStore:
         await SESSION.commit()
         return story
 
-    @transactional
+    # @transactional
     async def delete_story(
         self,
         user: User,
@@ -94,10 +94,10 @@ class StoryStore:
         delete_query = delete(Story).where(Story.story_id == story_id)
         await SESSION.execute(delete(Medium).where(Medium.story_id == story_id))
         await SESSION.execute(delete_query)
-
+        await SESSION.commit()
         return "SUCCESS"
     
-    @transactional
+    # @transactional
     async def add_medium(self, file_name: str, file_path: str):
         medium = Medium(file_name=file_name, url=file_path)
         SESSION.add(medium)
