@@ -5,3 +5,4 @@ __pycache__
 .vscode
 *.local
 *.prod
+story_uploads
