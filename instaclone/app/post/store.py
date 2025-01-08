@@ -14,11 +14,11 @@ class PostStore:
         result = await SESSION.scalars(select(Post).where(Post.user_id == user_id))
         return result.all()
     
-    @transactional
+    #@transactional
     async def add_post(self, user_id: int, location: str | None, post_text: str | None) -> Post:
         post = Post(user_id=user_id, location=location, post_text=post_text)
         SESSION.add(post)
-        await SESSION.flush()
+        await SESSION.commit()
         return post
 
     @transactional
