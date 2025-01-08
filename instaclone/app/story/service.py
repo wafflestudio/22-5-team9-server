@@ -43,6 +43,9 @@ class StoryService:
         """
         if len(await file.read()) > MAX_FILE_SIZE:
             raise FileSizeLimitError()
+        
+        await file.seek(0)
+        
         unique_filename = f"{uuid4().hex}_{file.filename}"
         file_path = os.path.join(BASE_DIR, unique_filename)
 
