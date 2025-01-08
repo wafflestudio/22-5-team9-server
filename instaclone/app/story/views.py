@@ -40,7 +40,7 @@ async def get_stories(
     story_list = await story_service.get_story_list(user_id)
     return [StoryDetailResponse.from_story(story) for story in story_list]
 
-@story_router.post("/edit/{story_id}", status_code=HTTP_200_OK)
+@story_router.patch("/edit/{story_id}", status_code=HTTP_200_OK)
 async def edit_story(
     user: Annotated[User, Depends(login_with_header)],
     # story_edit_request: StoryEditRequest,
