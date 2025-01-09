@@ -47,3 +47,9 @@ class User(Base):
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="user", lazy="selectin")
     stories: Mapped[list["Story"]] = relationship("Story", back_populates="user", lazy="selectin")
     #comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
+
+class BlockedToken(Base):
+    __tablename__ = "blocked_token"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    jti: Mapped[str] = mapped_column(String(40))
