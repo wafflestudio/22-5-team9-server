@@ -37,6 +37,31 @@ async def get_post(
     post = await post_service.get_post(post_id)
     return PostDetailResponse.from_post(post)
 
+
+
+@post_router.get("/user/{user_parameter}", status_code=HTTP_200_OK)
+async def get_user_posts(
+    user_parameter,
+    post_service: Annotated[PostService, Depends()],
+    user_service: Annotated[UserService, Depends()]
+):
+    try:
+        user_parameter = int(user_parameter)
+        return await get_user_posts_by_id(user_id=user_parameter, post_service=post_service)
+    except ValueError:
+        return await get_user_posts_by_username(username=str(user_parameter), user_service=user_service, post_service=post_service)
+    
+async def get_user_posts_by_id(
+    user_id: int,
+    post_service: Annotated[PostService, Depends()],
+) -> list[PostDetailResponse]:
+    print("Hello")
+    posts = await post_service.get_user_posts(user_id)
+    return [
+        PostDetailResponse.from_post(post)
+        for post in posts
+    ]
+
 @post_router.get("/user/{username}", status_code=HTTP_200_OK)
 async def get_user_posts_by_username(
     username: str,
@@ -47,18 +72,6 @@ async def get_user_posts_by_username(
     if user == None:
         raise UserDoesNotExistError
     posts = await post_service.get_user_posts(user.user_id)
-    return [
-        PostDetailResponse.from_post(post)
-        for post in posts
-    ]
-
-@post_router.get("/user/{user_id}", status_code=HTTP_200_OK)
-async def get_user_posts_by_id(
-    user_id: int,
-    post_service: Annotated[PostService, Depends()],
-) -> list[PostDetailResponse]:
-    print("Hello")
-    posts = await post_service.get_user_posts(user_id)
     return [
         PostDetailResponse.from_post(post)
         for post in posts
