@@ -7,7 +7,7 @@ from instaclone.app.user.service import UserService
 
 from instaclone.app.user.models import User
 from instaclone.app.user.service import UserService
-from instaclone.app.user.errors import InvalidTokenError
+from instaclone.app.user.errors import InvalidTokenError, UserDoesNotExistError
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
@@ -29,6 +29,16 @@ async def login_with_header(
 
 @user_router.get("/profile", status_code=HTTP_200_OK)
 async def me(user: Annotated[User, Depends(login_with_header)]) -> UserDetailResponse:
+    return await UserDetailResponse.from_user(user)
+
+@user_router.get("/{username}", status_code=HTTP_200_OK)
+async def view_profile(
+    username: str,
+    user_service: Annotated[UserService, Depends()]
+    ) -> UserDetailResponse:
+    user = await user_service.get_user_by_username(username)
+    if user == None:
+        raise UserDoesNotExistError()
     return await UserDetailResponse.from_user(user)
 
 @user_router.patch("/profile/edit", status_code=HTTP_200_OK)
