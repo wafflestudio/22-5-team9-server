@@ -14,7 +14,8 @@ from instaclone.app.user.errors import (
 )
 from instaclone.app.auth.utils import (
     create_access_token,
-    create_refresh_token
+    create_refresh_token,
+    refresh_access_token
 )
 from instaclone.common.utils import identify_input_type
 from instaclone.app.user.models import User
@@ -116,3 +117,7 @@ class UserService:
         website: str | None
     ) -> User:
         return await self.user_store.add_user(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, gender=gender, birthday=birthday, profile_image=profile_image, introduce=introduce, website=website)
+    
+    async def refresh_token(self, refresh_token: str) -> tuple[str, str]:
+        new_access_token, new_refresh_token = await refresh_access_token(refresh_token, access_expires=timedelta(minutes=10), refresh_expires=timedelta(hours=24))
+        return new_access_token, new_refresh_token

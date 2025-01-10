@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest, GenderEnum
-from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse
+from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse, RefreshTokenResponse
 from instaclone.app.user.service import UserService
 
 from instaclone.app.user.models import User
@@ -75,3 +75,12 @@ async def signup(
         signup_request.website
     )
     return "SUCCESS"
+
+@user_router.post("/refresh", status_code=HTTP_200_OK)
+async def refresh_token(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    user_service: Annotated[UserService, Depends()]
+) -> RefreshTokenResponse:
+    refresh_token = credentials.credentials
+    new_access_token, new_refresh_token = await user_service.refresh_token(refresh_token)
+    return RefreshTokenResponse(access_token=new_access_token, refresh_token=new_refresh_token)
