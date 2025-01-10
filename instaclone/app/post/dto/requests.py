@@ -1,7 +1,7 @@
-from typing import Annotated, Optional, Callable, TypeVar
+from typing import Annotated, Optional, Callable, TypeVar, List
 from pydantic import AfterValidator, BaseModel
 from functools import wraps
-
+from fastapi import UploadFile
 
 from instaclone.common.errors import InvalidFieldFormatError
 
@@ -16,11 +16,11 @@ def skip_none(validator: Callable[[T], T]) -> Callable[[T | None], T | None]:
 
     return wrapper
 
-def validate_address(address: str) -> str:
-    if len(address) > 50:
-        raise InvalidFieldFormatError(f"Address: {len(address)}/50 chars")
+def validate_location(location: str) -> str:
+    if len(location) > 50:
+        raise InvalidFieldFormatError(f"Location: {len(location)}/50 chars")
     
-    return address
+    return location
 
 def validate_text(text: str) -> str:
     if len(text) > 500:
@@ -28,8 +28,9 @@ def validate_text(text: str) -> str:
     return text
 
 class PostPutRequest(BaseModel):
-    location: Annotated[Optional[str], AfterValidator(skip_none(validate_address))]
-    post_text: Annotated[Optional[str], AfterValidator(skip_none(validate_text))]
+    media: List[UploadFile]
+    location: Annotated[str | None, AfterValidator(skip_none(validate_location))] = None
+    post_text: Annotated[str | None, AfterValidator(skip_none(validate_text))] = None
 
 class PostGetRequest(BaseModel):
     post_id: Optional[int] = None

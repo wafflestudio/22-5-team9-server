@@ -9,27 +9,25 @@ from instaclone.app.user.models import User
 from instaclone.app.user.views import login_with_header
 from instaclone.app.user.service import UserService
 from instaclone.app.user.errors import UserDoesNotExistError
+from instaclone.app.medium.service import MediumService
 
 post_router = APIRouter()
 
 @post_router.post("/", status_code=HTTP_201_CREATED)
 async def create_post(
-    post_request: PostPutRequest,
     user: Annotated[User, Depends(login_with_header)],
     post_service: Annotated[PostService, Depends()],
+    medium_service: Annotated[MediumService, Depends()],
+    post_request: PostPutRequest = Depends()
 ) -> PostDetailResponse:
+    media = [await medium_service.file_to_medium(file) for file in post_request.media]
     post = await post_service.create_post(
-        user_id=user.user_id,
+        user=user,
         location=post_request.location,
         post_text=post_request.post_text,
+        media=media
     )
-    return PostDetailResponse(
-        post_id=post.post_id,
-        user_id=post.user_id,
-        location=post.location,
-        post_text=post.post_text,
-        creation_date=post.creation_date,
-    )
+    return PostDetailResponse.from_post(post)
 
 @post_router.get("/{post_id}", status_code=HTTP_200_OK)
 async def get_post(
@@ -37,13 +35,7 @@ async def get_post(
     post_service: Annotated[PostService, Depends()],
 ) -> PostDetailResponse:
     post = await post_service.get_post(post_id)
-    return PostDetailResponse(
-        post_id=post.post_id,
-        user_id=post.user_id,
-        location=post.location,
-        post_text=post.post_text,
-        creation_date=post.creation_date,
-    )
+    return PostDetailResponse.from_post(post)
 
 @post_router.get("/user/{username}", status_code=HTTP_200_OK)
 async def get_user_posts_by_username(
@@ -56,13 +48,7 @@ async def get_user_posts_by_username(
         raise UserDoesNotExistError
     posts = await post_service.get_user_posts(user.user_id)
     return [
-        PostDetailResponse(
-            post_id=post.post_id,
-            user_id=post.user_id,
-            location=post.location,
-            post_text=post.post_text,
-            creation_date=post.creation_date,
-        )
+        PostDetailResponse.from_post(post)
         for post in posts
     ]
 
@@ -71,15 +57,10 @@ async def get_user_posts_by_id(
     user_id: int,
     post_service: Annotated[PostService, Depends()],
 ) -> list[PostDetailResponse]:
+    print("Hello")
     posts = await post_service.get_user_posts(user_id)
     return [
-        PostDetailResponse(
-            post_id=post.post_id,
-            user_id=post.user_id,
-            location=post.location,
-            post_text=post.post_text,
-            creation_date=post.creation_date,
-        )
+        PostDetailResponse.from_post(post)
         for post in posts
     ]
 
