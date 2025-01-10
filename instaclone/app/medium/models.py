@@ -27,4 +27,4 @@ class Medium(Base):
 
     # relationships
     post: Mapped[Optional["Post"]] = relationship("Post", back_populates="media")
-    # story: Mapped[Optional["Story"]] = relationship("Story", back_populates="media")
+    story: Mapped[Optional["Story"]] = relationship("Story", back_populates="media")
