@@ -13,7 +13,7 @@ class Medium(Base):
     # post_id
     post_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("posts.post_id", ondelete='CASCADE'), nullable=True)
     # story_id
-    # story_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("stories.story_id", ondelete='CASCADE'), nullable=True)
+    story_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("stories.story_id", ondelete='CASCADE'), nullable=True)
     # image_id
     image_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     # file_name

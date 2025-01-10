@@ -1,14 +1,13 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest
-from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse
+from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest, GenderEnum
+from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse, RefreshTokenResponse
 from instaclone.app.user.service import UserService
 
 from instaclone.app.user.models import User
 from instaclone.app.user.service import UserService
-from instaclone.app.user.dto.requests import UserEditRequest
-from instaclone.app.user.errors import InvalidTokenError
+from instaclone.app.user.errors import InvalidTokenError, UserDoesNotExistError
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
@@ -30,22 +29,34 @@ async def login_with_header(
 
 @user_router.get("/profile", status_code=HTTP_200_OK)
 async def me(user: Annotated[User, Depends(login_with_header)]) -> UserDetailResponse:
-    return UserDetailResponse.from_user(user)
+    return await UserDetailResponse.from_user(user)
+
+@user_router.get("/{username}", status_code=HTTP_200_OK)
+async def view_profile(
+    username: str,
+    user_service: Annotated[UserService, Depends()]
+    ) -> UserDetailResponse:
+    user = await user_service.get_user_by_username(username)
+    if user == None:
+        raise UserDoesNotExistError()
+    return await UserDetailResponse.from_user(user)
 
 @user_router.patch("/profile/edit", status_code=HTTP_200_OK)
 async def update_me(
     user: Annotated[User, Depends(login_with_header)],
-    edit_request: UserEditRequest,
     user_service: Annotated[UserService, Depends()],
+    edit_request: UserEditRequest = Depends(),
 ) -> UserDetailResponse:
     updated_user = await user_service.edit_user(
         user=user,
         username=edit_request.username,
         full_name=edit_request.full_name,
         introduce=edit_request.introduce,
-        profile_image=edit_request.profile_image
+        profile_image=edit_request.profile_image,
+        website=edit_request.website,
+        gender=edit_request.gender
     )
-    return UserDetailResponse.from_user(updated_user)
+    return await UserDetailResponse.from_user(updated_user)
 
 @user_router.post("/signin", status_code=HTTP_200_OK)
 async def signin(
@@ -74,3 +85,12 @@ async def signup(
         signup_request.website
     )
     return "SUCCESS"
+
+@user_router.post("/refresh", status_code=HTTP_200_OK)
+async def refresh_token(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    user_service: Annotated[UserService, Depends()]
+) -> RefreshTokenResponse:
+    refresh_token = credentials.credentials
+    new_access_token, new_refresh_token = await user_service.refresh_token(refresh_token)
+    return RefreshTokenResponse(access_token=new_access_token, refresh_token=new_refresh_token)
