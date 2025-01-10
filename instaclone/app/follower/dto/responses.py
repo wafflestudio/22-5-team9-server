@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.future import select
@@ -28,3 +29,9 @@ class FollowerDetailResponse(BaseModel):
             follower_count=follower_count,
             following_count=following_count
         )
+
+class FollowerListResponse(BaseModel):
+    follower_ids: List[int]
+    @staticmethod
+    def from_follower_list(follower_ids: List[int]) -> "FollowerListResponse":
+        return FollowerListResponse(follower_ids=follower_ids)
