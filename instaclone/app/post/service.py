@@ -22,7 +22,6 @@ class PostService:
         return post
 
     async def get_user_posts(self, user_id: int) -> Sequence[Post]:
-        print("Hello")
         return await self.post_store.get_posts_by_user(user_id)
 
     async def delete_post(self, post_id: int) -> None:

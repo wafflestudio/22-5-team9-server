@@ -13,7 +13,6 @@ from instaclone.app.medium.errors import FileSizeLimitError, FailedToSave
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
 BASE_DIR = "media_uploads"
-os.makedirs(BASE_DIR, exist_ok=True)
 
 class MediumService:
     def __init__(self, medium_store: Annotated[MediumStore, Depends()]) -> None:
@@ -136,6 +135,8 @@ class MediumService:
 
         unique_filename = f"{uuid4().hex}_{file.filename}"
         file_path = os.path.join(BASE_DIR, unique_filename)
+        
+        os.makedirs(BASE_DIR, exist_ok=True)
 
         with open(file_path, "wb") as buffer:
             while content := await file.read(1024):
