@@ -46,7 +46,7 @@ async def update_me(
         website=edit_request.website,
         gender=edit_request.gender
     )
-    return UserDetailResponse.from_user(updated_user)
+    return await UserDetailResponse.from_user(updated_user)
 
 @user_router.post("/signin", status_code=HTTP_200_OK)
 async def signin(

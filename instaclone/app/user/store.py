@@ -52,8 +52,7 @@ class UserStore:
 
         await SESSION.commit()
         return user
-  
-    @transactional
+    
     async def add_user(
         self,
         username: str,
@@ -80,4 +79,5 @@ class UserStore:
 
         user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image=image_path, gender=gender, birthday=birthday, introduce=introduce, website=website)
         SESSION.add(user)
+        await SESSION.commit()
         return user
