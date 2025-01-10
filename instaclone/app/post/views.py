@@ -55,7 +55,6 @@ async def get_user_posts_by_id(
     user_id: int,
     post_service: Annotated[PostService, Depends()],
 ) -> list[PostDetailResponse]:
-    print("Hello")
     posts = await post_service.get_user_posts(user_id)
     return [
         PostDetailResponse.from_post(post)
