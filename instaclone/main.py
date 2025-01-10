@@ -22,6 +22,7 @@ app.add_middleware(
 )
 
 app.mount("/story_uploads", StaticFiles(directory="story_uploads"), name="story_uploads")
+app.mount("/media_uploads", StaticFiles(directory="media_uploads"), name="media_uploads")
 
 @app.get("/test")
 def test_api():
