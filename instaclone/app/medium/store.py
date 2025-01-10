@@ -18,16 +18,21 @@ class MediumStore:
         result = await SESSION.scalars(select(Medium).where(Medium.story_id == story_id))
         return result.all()
     
-    @transactional
-    async def add_medium(self, post_id: int | None, story_id: int | None, file_name: str, url: str) -> Medium:
-        medium = Medium(post_id=post_id, story_id=story_id, file_name=file_name, url=url)
+   #@transactional
+    async def add_medium(self, post_id: int | None, 
+                         #story_id: int | None, 
+                         file_name: str, url: str) -> Medium:
+        medium = Medium(post_id=post_id, 
+                        #story_id=story_id, 
+                        file_name=file_name, url=url)
         SESSION.add(medium)
-        await SESSION.flush()
+        await SESSION.commit()
         return medium
 
-    @transactional
+    #@transactional
     async def delete_medium(self, image_id: int) -> None:
         medium = await self.get_medium_by_id(image_id)
         if medium:
             await SESSION.delete(medium)
-            await SESSION.flush()
+            await SESSION.commit()
+

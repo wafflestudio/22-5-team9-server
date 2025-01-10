@@ -6,4 +6,4 @@ class MediumResponse(BaseModel):
     post_id: int | None
     #story_id: int | None
     file_name: str
-    url: HttpUrl
+    url: str

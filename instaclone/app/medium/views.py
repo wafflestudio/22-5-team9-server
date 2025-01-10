@@ -7,13 +7,39 @@ from instaclone.app.medium.service import MediumService
 
 medium_router = APIRouter()
 
-@medium_router.post("/", status_code=HTTP_201_CREATED)
+'''@medium_router.post("/", status_code=HTTP_201_CREATED)
 async def upload_medium(
     medium_service: Annotated[MediumService, Depends()],
     post_id: int = Form(None),
     #story_id: int = Form(None),
     file: UploadFile = File(...),
 ) -> MediumResponse:
+    try:
+        medium = await medium_service.create_medium(post_id=post_id, 
+                                                    #story_id=story_id, 
+                                                    file=file)
+        return MediumResponse(
+            image_id=medium.image_id,
+            post_id=medium.post_id,
+            #story_id=medium.story_id,
+            file_name=medium.file_name,
+            url=medium.url,
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))'''
+
+@medium_router.post("/", status_code=201)
+async def upload_medium(
+    medium_service: Annotated[MediumService, Depends()],
+    post_id: int = Form(None),
+    #story_id: int = Form(None),
+    file: UploadFile = File(...)
+) -> MediumResponse:
+    """
+    Upload a medium file and save it locally.
+    """
     try:
         medium = await medium_service.create_medium(post_id=post_id, 
                                                     #story_id=story_id, 
@@ -40,7 +66,7 @@ async def get_medium(
         return MediumResponse(
             image_id=medium.image_id,
             post_id=medium.post_id,
-            story_id=medium.story_id,
+            #story_id=medium.story_id,
             file_name=medium.file_name,
             url=medium.url,
         )
@@ -57,7 +83,7 @@ async def get_media_by_post(
         MediumResponse(
             image_id=medium.image_id,
             post_id=medium.post_id,
-            story_id=medium.story_id,
+            #story_id=medium.story_id,
             file_name=medium.file_name,
             url=medium.url,
         )
