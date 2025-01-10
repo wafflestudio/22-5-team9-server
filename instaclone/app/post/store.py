@@ -24,7 +24,7 @@ class PostStore:
         await SESSION.commit()
         return post
 
-    @transactional
+    # @transactional
     async def delete_post(self, post_id: int) -> None:
         post = await self.get_post_by_id(post_id)
         if post:
