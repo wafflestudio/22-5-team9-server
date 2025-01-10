@@ -61,7 +61,7 @@ async def get_user_posts_by_id(
         for post in posts
     ]
 
-@post_router.get("/user/{username}", status_code=HTTP_200_OK)
+# @post_router.get("/user/{username}", status_code=HTTP_200_OK)
 async def get_user_posts_by_username(
     username: str,
     user_service: Annotated[UserService, Depends()],

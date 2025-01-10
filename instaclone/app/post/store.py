@@ -15,7 +15,6 @@ class PostStore:
     
     async def get_posts_by_user(self, user_id: int) -> Sequence[Post]:
         result = await SESSION.scalars(select(Post).where(Post.user_id == user_id))
-        print(user_id)
         return result.all()
     
     #@transactional
@@ -30,4 +29,5 @@ class PostStore:
         post = await self.get_post_by_id(post_id)
         if post:
             await SESSION.delete(post)
-            await SESSION.flush()
+            await SESSION.commit()
+            # await SESSION.flush()
