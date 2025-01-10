@@ -38,3 +38,7 @@ class InvalidTokenError(InstacloneHttpException):
 class BlockedTokenError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(401, "Blocked token")
+
+class UserDoesNotExistError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(404, "User does not exist")

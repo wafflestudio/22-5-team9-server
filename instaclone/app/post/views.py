@@ -7,6 +7,8 @@ from instaclone.app.post.dto.responses import PostDetailResponse
 from instaclone.app.post.service import PostService
 from instaclone.app.user.models import User
 from instaclone.app.user.views import login_with_header
+from instaclone.app.user.service import UserService
+from instaclone.app.user.errors import UserDoesNotExistError
 
 post_router = APIRouter()
 
@@ -43,8 +45,29 @@ async def get_post(
         creation_date=post.creation_date,
     )
 
+@post_router.get("/user/{username}", status_code=HTTP_200_OK)
+async def get_user_posts_by_username(
+    username: str,
+    user_service: Annotated[UserService, Depends()],
+    post_service: Annotated[PostService, Depends()],
+) -> list[PostDetailResponse]:
+    user = await user_service.get_user_by_username(username)
+    if user == None:
+        raise UserDoesNotExistError
+    posts = await post_service.get_user_posts(user.user_id)
+    return [
+        PostDetailResponse(
+            post_id=post.post_id,
+            user_id=post.user_id,
+            location=post.location,
+            post_text=post.post_text,
+            creation_date=post.creation_date,
+        )
+        for post in posts
+    ]
+
 @post_router.get("/user/{user_id}", status_code=HTTP_200_OK)
-async def get_user_posts(
+async def get_user_posts_by_id(
     user_id: int,
     post_service: Annotated[PostService, Depends()],
 ) -> list[PostDetailResponse]:
