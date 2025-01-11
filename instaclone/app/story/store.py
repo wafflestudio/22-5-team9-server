@@ -96,11 +96,5 @@ class StoryStore:
         await SESSION.execute(delete_query)
         await SESSION.commit()
         return "SUCCESS"
-    
-    # @transactional
-    async def add_medium(self, file_name: str, file_path: str):
-        medium = Medium(file_name=file_name, url=file_path)
-        SESSION.add(medium)
-        await SESSION.commit()
-        return medium
+
         
