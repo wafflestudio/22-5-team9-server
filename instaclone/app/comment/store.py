@@ -1,36 +1,55 @@
-# from typing import Sequence
-# from sqlalchemy.sql import select
-# from sqlalchemy.orm import joinedload
+from typing import Sequence
+from sqlalchemy.sql import select, delete
 
-# from instaclone.app.comment.models import Comment
-# from instaclone.app.post.models import Post
-# from instaclone.database.annotation import transactional
-# from instaclone.database.connection import SESSION
+from instaclone.app.comment.models import Comment
+from instaclone.app.comment.errors import CommentNotFoundError, CommentPermissionError
+from instaclone.database.connection import SESSION
 
+class CommentStore:
+    async def get_comment_by_id(self, comment_id: int) -> Comment | None:
+        return await SESSION.scalar(select(Comment).where(Comment.comment_id == comment_id))
+        
+    async def create_comment(
+        self, 
+        user_id: int,
+        post_id: int,
+        comment_text: str,
+        parent_id: int | None = None
+    ) -> Comment:
+        comment = Comment(user_id=user_id, post_id=post_id, parent_id=parent_id, comment_text=comment_text)
+        SESSION.add(comment)
+        await SESSION.commit()
+        return comment
+    
+    async def get_comments_by_post(self, post_id: int) -> Sequence["Comment"]:
+        query = select(Comment).where(Comment.post_id == post_id)
 
-# class CommentStore:
-#     @transactional
-#     async def create_comment(
-#         self, 
-#         user_id: int,
-#         post_id: int,
-#         comment_text: str,
-#         parent_id: int | None = None
-#     ) -> Comment:
-#         comment = Comment(user_id=user_id, post_id=post_id, parent_id=parent_id, comment_text=comment_text)
-#         SESSION.add(comment)
-#         await SESSION.flush()
-#         return comment
+        result = await SESSION.scalars(query)
+        comments = result.all()
 
-#     async def get_comment_by_id(self, comment_id: int) -> Comment | None:
-#         comment = await SESSION.get(Comment, comment_id)
-#         return comment
+        return comments
+    
+    async def edit_comment(self, user_id: int, comment_id: int, comment_text: str) -> Comment:
+        comment = await SESSION.scalar(select(Comment).where(Comment.comment_id == comment_id))
+        
+        if not comment:
+            raise CommentNotFoundError()
+        if comment.user_id != user_id:
+            raise CommentPermissionError()
+        
+        comment.comment_text = comment_text
+        await SESSION.commit()
+        return comment
+    
+    async def delete_comment(self, user_id: int, comment_id: int) -> str:
+        query = select(Comment).where(Comment.comment_id == comment_id)
+        comment = await SESSION.scalar(query)
 
-#     async def get_comments(
-#         self,
-#         post_id: int | None = None
-#     ) -> Sequence[Comment]:
-#         comments_list_query = select(Comment).options(joinedload((Comment.post)))
-#         if post_id is not None:
-#             comments_list_query = comments_list_query.where(Comment.post_id == post_id)
-#         return (await SESSION.scalars(comments_list_query)).all()
+        if not comment:
+            raise CommentNotFoundError()
+        if comment.user_id != user_id:
+            raise CommentPermissionError()
+        
+        delete_query = delete(Comment).where(Comment.comment_id == comment_id)
+        await SESSION.execute(delete_query)
+        return "SUCCESS"
