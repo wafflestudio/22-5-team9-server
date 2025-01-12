@@ -29,6 +29,14 @@ class CommentStore:
 
         return comments
     
+    async def get_replies_from_comment(self, comment_id: int) -> Sequence["Comment"]:
+        query = select(Comment).where(Comment.parent_id == comment_id)
+
+        result = await SESSION.scalars(query)
+        replies = result.all()
+        
+        return replies
+    
     async def edit_comment(self, user_id: int, comment_id: int, comment_text: str) -> Comment:
         comment = await SESSION.scalar(select(Comment).where(Comment.comment_id == comment_id))
         

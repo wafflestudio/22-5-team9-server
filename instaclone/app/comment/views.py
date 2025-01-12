@@ -29,6 +29,14 @@ async def get_comment_by_id(
     comment = await comment_service.get_comment_by_id(comment_id)
     return await CommentDetailResponse.from_comment(comment)
 
+@comment_router.get("/{comment_id}/replies", status_code=HTTP_200_OK)
+async def get_replies_from_comment(
+    comment_id: int,
+    comment_service: Annotated[CommentService, Depends()]
+) -> List[CommentDetailResponse]:
+    replies = await comment_service.get_replies_from_comment(comment_id)
+    return [await CommentDetailResponse.from_comment(r) for r in replies]
+
 @comment_router.get("/list/{post_id}", status_code=HTTP_200_OK)
 async def get_comment_by_post(
     post_id: int,

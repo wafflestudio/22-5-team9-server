@@ -29,6 +29,10 @@ class CommentService:
         comments = await self.comments_store.get_comments_by_post(post_id)
         return comments
     
+    async def get_replies_from_comment(self, comment_id: int) -> Sequence[Comment]:
+        comments = await self.comments_store.get_replies_from_comment(comment_id)
+        return comments
+    
     async def edit_comment(
         self,
         user_id: int,
