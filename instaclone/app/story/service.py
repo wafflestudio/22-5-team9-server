@@ -36,22 +36,3 @@ class StoryService:
     
     async def delete_story(self, user: User, story_id: int):
         await self.story_store.delete_story(user, story_id)
-
-    async def file_to_medium(self, file: UploadFile) -> Medium:
-        """
-        파일을 저장하고 medium을 생성합니다.
-        """
-        if len(await file.read()) > MAX_FILE_SIZE:
-            raise FileSizeLimitError()
-        
-        await file.seek(0)
-        
-        unique_filename = f"{uuid4().hex}_{file.filename}"
-        file_path = os.path.join(BASE_DIR, unique_filename)
-
-        with open(file_path, "wb") as buffer:
-            while content := await file.read(1024):
-                buffer.write(content)
-
-        medium = await self.story_store.add_medium(unique_filename, file_path)
-        return medium

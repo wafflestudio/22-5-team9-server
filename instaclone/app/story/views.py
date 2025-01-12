@@ -9,6 +9,7 @@ from instaclone.app.story.dto.responses import StoryDetailResponse
 from instaclone.app.story.models import Story
 from instaclone.app.story.service import StoryService
 from instaclone.app.medium.models import Medium
+from instaclone.app.medium.service import MediumService
 
 story_router = APIRouter()
 
@@ -17,10 +18,11 @@ async def create_story(
     user: Annotated[User, Depends(login_with_header)],
     # story_create_request: StoryCreateRequest,
     files: List[UploadFile],
-    story_service: Annotated[StoryService, Depends()]
+    story_service: Annotated[StoryService, Depends()],
+    medium_service: Annotated[MediumService, Depends()]
 ) -> StoryDetailResponse:
     # List[UploadFile] -> List[Medium]
-    media = [await story_service.file_to_medium(file) for file in files]
+    media = [await medium_service.file_to_medium(file) for file in files]
     story = await story_service.create_story(user, media)
     return StoryDetailResponse.from_story(story)
 
@@ -46,10 +48,11 @@ async def edit_story(
     # story_edit_request: StoryEditRequest,
     files: List[UploadFile],
     story_id: int,
-    story_service: Annotated[StoryService, Depends()]
+    story_service: Annotated[StoryService, Depends()],
+    medium_service: Annotated[MediumService, Depends()]
 ) -> StoryDetailResponse:
     # List[UploadFile] -> List[Medium]
-    media = [await story_service.file_to_medium(file) for file in files]
+    media = [await medium_service.file_to_medium(file) for file in files]
     story = await story_service.edit_story(user, story_id, media)
     return StoryDetailResponse.from_story(story)
 
