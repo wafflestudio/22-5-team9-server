@@ -1,6 +1,8 @@
 from typing import Sequence
 from sqlalchemy.sql import select, delete
 
+from instaclone.app.user.models import User
+from instaclone.app.post.models import Post
 from instaclone.app.comment.models import Comment
 from instaclone.app.comment.errors import CommentNotFoundError, CommentPermissionError
 from instaclone.database.connection import SESSION
@@ -11,12 +13,16 @@ class CommentStore:
         
     async def create_comment(
         self, 
-        user_id: int,
-        post_id: int,
+        user: User,
+        post: Post,
         comment_text: str,
         parent_id: int | None = None
     ) -> Comment:
-        comment = Comment(user_id=user_id, post_id=post_id, parent_id=parent_id, comment_text=comment_text)
+        if parent_id:
+            parent_comment = await self.get_comment_by_id(parent_id)
+        else:
+            parent_comment = None
+        comment = Comment(user=user, post=post, parent=parent_comment, comment_text=comment_text)
         SESSION.add(comment)
         await SESSION.commit()
         return comment
@@ -60,4 +66,5 @@ class CommentStore:
         
         delete_query = delete(Comment).where(Comment.comment_id == comment_id)
         await SESSION.execute(delete_query)
+        await SESSION.commit()
         return "SUCCESS"

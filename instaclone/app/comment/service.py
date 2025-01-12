@@ -4,6 +4,8 @@ from fastapi import Depends
 from instaclone.app.comment.store import CommentStore
 from instaclone.app.comment.models import Comment
 from instaclone.app.comment.errors import CommentNotFoundError
+from instaclone.app.user.models import User
+from instaclone.app.post.models import Post
 
 class CommentService:
     def __init__(self, comments_store: Annotated[CommentStore, Depends()]):
@@ -11,12 +13,12 @@ class CommentService:
 
     async def create_comment(
         self,
-        user_id: int,
-        post_id: int,
+        user: User,
+        post: Post,
         parent_id: int | None,
         comment_text: str,
     ) -> Comment:
-        comment = await self.comments_store.create_comment(user_id=user_id, post_id=post_id, parent_id=parent_id, comment_text=comment_text)
+        comment = await self.comments_store.create_comment(user=user, post=post, parent_id=parent_id, comment_text=comment_text)
         return comment
     
     async def get_comment_by_id(self, comment_id: int) -> Comment:
