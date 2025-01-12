@@ -4,12 +4,16 @@ from sqlalchemy.sql import select, delete
 from instaclone.app.user.models import User
 from instaclone.app.post.models import Post
 from instaclone.app.comment.models import Comment
-from instaclone.app.comment.errors import CommentNotFoundError, CommentPermissionError
+from instaclone.app.comment.errors import CommentNotFoundError, CommentPermissionError, CommentServerError
+from instaclone.app.post.errors import PostNotFoundError
 from instaclone.database.connection import SESSION
 
 class CommentStore:
-    async def get_comment_by_id(self, comment_id: int) -> Comment | None:
-        return await SESSION.scalar(select(Comment).where(Comment.comment_id == comment_id))
+    async def get_comment_by_id(self, comment_id: int) -> Comment:
+        comment = await SESSION.scalar(select(Comment).where(Comment.comment_id == comment_id))
+        if not comment:
+            raise CommentNotFoundError()
+        return comment
         
     async def create_comment(
         self, 
@@ -23,11 +27,20 @@ class CommentStore:
         else:
             parent_comment = None
         comment = Comment(user=user, post=post, parent=parent_comment, comment_text=comment_text)
-        SESSION.add(comment)
-        await SESSION.commit()
-        return comment
+        try:
+            SESSION.add(comment)
+            await SESSION.commit()
+            return comment
+        
+        except Exception as e:
+            await SESSION.rollback()
+            raise CommentServerError() from e
     
     async def get_comments_by_post(self, post_id: int) -> Sequence["Comment"]:
+        post = await SESSION.scalar(select(Post).where(Post.post_id == post_id))
+        if not post:
+            raise PostNotFoundError()
+
         query = select(Comment).where(Comment.post_id == post_id)
 
         result = await SESSION.scalars(query)
@@ -36,6 +49,8 @@ class CommentStore:
         return comments
     
     async def get_replies_from_comment(self, comment_id: int) -> Sequence["Comment"]:
+        await self.get_comment_by_id(comment_id)
+
         query = select(Comment).where(Comment.parent_id == comment_id)
 
         result = await SESSION.scalars(query)
@@ -44,27 +59,32 @@ class CommentStore:
         return replies
     
     async def edit_comment(self, user_id: int, comment_id: int, comment_text: str) -> Comment:
-        comment = await SESSION.scalar(select(Comment).where(Comment.comment_id == comment_id))
-        
-        if not comment:
-            raise CommentNotFoundError()
+        comment = await self.get_comment_by_id(comment_id)
         if comment.user_id != user_id:
             raise CommentPermissionError()
         
         comment.comment_text = comment_text
-        await SESSION.commit()
-        return comment
+        try:
+            await SESSION.commit()
+            return comment
+        
+        except Exception as e:
+            await SESSION.rollback()
+            raise CommentServerError() from e
     
     async def delete_comment(self, user_id: int, comment_id: int) -> str:
-        query = select(Comment).where(Comment.comment_id == comment_id)
-        comment = await SESSION.scalar(query)
+        comment = await self.get_comment_by_id(comment_id)
 
-        if not comment:
-            raise CommentNotFoundError()
         if comment.user_id != user_id:
             raise CommentPermissionError()
-        
+        child_delete_query = delete(Comment).where(Comment.parent_id == comment_id)
         delete_query = delete(Comment).where(Comment.comment_id == comment_id)
+        await SESSION.execute(child_delete_query)
         await SESSION.execute(delete_query)
-        await SESSION.commit()
-        return "SUCCESS"
+        try:
+            await SESSION.commit()
+            return "SUCCESS"
+        
+        except Exception as e:
+            await SESSION.rollback()
+            raise CommentServerError() from e
