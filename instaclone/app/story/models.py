@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from datetime import datetime, timedelta
-from sqlalchemy import BigInteger, DATETIME, ForeignKey, event
+from sqlalchemy import BigInteger, DATETIME, ForeignKey, event, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -35,3 +35,20 @@ class Story(Base):
 def set_expiration_date(_, __, target: Story):
     if target.expiration_date is None:
         target.expiration_date = target.calculate_expiration_date(target.creation_date)
+
+class Highlight(Base):
+    __tablename__ = "highlights"
+
+    # highlight_id
+    highlight_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    # user_id
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
+    highlight_name: Mapped[String] = mapped_column(String(15), nullable=False)
+    stories: Mapped[list["Story"]] = relationship("Story", secondary="highlight_stories")
+    media: Mapped["Medium"] = relationship("Medium", back_populates="story", lazy="selectin")
+
+class HighlightStories(Base):
+    __tablename__ = "highlight_stories"
+
+    highlight_id = mapped_column(ForeignKey("highlights.highlight_id"), primary_key=True)
+    story_id = mapped_column(ForeignKey("stories.story_id"), primary_key=True)

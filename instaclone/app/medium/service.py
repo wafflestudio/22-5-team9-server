@@ -92,9 +92,11 @@ class MediumService:
     async def delete_medium(self, image_id: int) -> None:
         await self.medium_store.delete_medium(image_id) ''' 
     
-    async def create_medium(self, post_id: int | None, 
-                            story_id: int | None, 
-                            file: UploadFile) -> Medium:
+    async def create_medium(self,
+                            file: UploadFile,
+                            post_id: int | None = None, 
+                            story_id: int | None = None, 
+                            ) -> Medium:
         if file.filename == None:
             raise FailedToSave()
         

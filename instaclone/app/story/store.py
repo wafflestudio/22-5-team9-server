@@ -4,7 +4,7 @@ from sqlalchemy.sql import select, delete
 
 from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
-from instaclone.app.story.models import Story
+from instaclone.app.story.models import Story, Highlight
 from instaclone.database.annotation import transactional
 from instaclone.database.connection import SESSION
 from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError
@@ -96,5 +96,20 @@ class StoryStore:
         await SESSION.execute(delete_query)
         await SESSION.commit()
         return "SUCCESS"
+    
+    async def create_highlight(
+            self,
+            user: User,
+            highlight_name: str,
+            cover_image: Medium
+    ) -> Highlight:
+        user_in_session = await SESSION.get(User, user.user_id)
+        if user_in_session is None:
+            user = await SESSION.merge(user)
+        else:
+            user = user_in_session
 
-        
+        highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
+        SESSION.add(highlight)
+        await SESSION.commit()
+        return highlight

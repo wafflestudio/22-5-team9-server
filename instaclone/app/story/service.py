@@ -1,12 +1,12 @@
 from typing import Annotated, Sequence, List
-from fastapi import Depends, UploadFile
+from fastapi import Depends, UploadFile, File
 from uuid import uuid4
 import os
 
 from instaclone.app.story.errors import FileSizeLimitError
 from instaclone.app.story.store import StoryStore
 from instaclone.app.user.models import User
-from instaclone.app.story.models import Story
+from instaclone.app.story.models import Story, Highlight
 from instaclone.app.medium.models import Medium
 
 MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -36,3 +36,19 @@ class StoryService:
     
     async def delete_story(self, user: User, story_id: int):
         await self.story_store.delete_story(user, story_id)
+
+    async def create_highlight(self, user:User, story_id: int, highlight_name: str, highlight_cover: Medium) -> Highlight:
+        highlight = await self.story_store.create_highlight(user=user, highlight_name=highlight_name, cover_image=highlight_cover)
+        return highlight
+    
+    async def add_story_highlight():
+        pass
+    
+    async def get_highlight():
+        pass
+
+    async def edit_highlight():
+        pass
+
+    async def delete_highlight():
+        pass
