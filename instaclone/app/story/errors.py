@@ -21,3 +21,7 @@ class StoryAlreadyExpired(InstacloneHttpException):
 class FileSizeLimitError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_413_REQUEST_ENTITY_TOO_LARGE, "File is too large")
+
+class StoryViewPermissionError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "Don't have permission to view story viewers")
