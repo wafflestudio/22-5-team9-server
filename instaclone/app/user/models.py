@@ -46,7 +46,8 @@ class User(Base):
     following_users: Mapped[List["Follower"]] = relationship("Follower", foreign_keys="[Follower.follower_id]", back_populates="follower")
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="user", lazy="selectin")
     stories: Mapped[list["Story"]] = relationship("Story", back_populates="user", lazy="selectin")
-    comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
+    #comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="user")
+    story_views: Mapped[list["StoryView"]] = relationship("StoryView", back_populates="user", lazy="selectin")
 
 class BlockedToken(Base):
     __tablename__ = "blocked_token"
