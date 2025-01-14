@@ -8,6 +8,7 @@ from instaclone.app.post.service import PostService
 from instaclone.app.user.models import User
 from instaclone.app.user.views import login_with_header
 from instaclone.app.user.service import UserService
+from instaclone.app.follower.service import FollowService
 from instaclone.app.user.errors import UserDoesNotExistError
 from instaclone.app.medium.service import MediumService
 
@@ -50,7 +51,20 @@ async def get_user_posts(
         return await get_user_posts_by_id(user_id=user_parameter, post_service=post_service)
     except ValueError:
         return await get_user_posts_by_username(username=str(user_parameter), user_service=user_service, post_service=post_service)
-    
+
+@post_router.get("/posts/following")
+async def get_following_posts(
+    user: Annotated[User, Depends(login_with_header)],
+    post_service: Annotated[PostService, Depends()],
+    follow_service: Annotated[FollowService, Depends()]        
+) -> list[PostDetailResponse]:
+    follow_list = await follow_service.get_following_list(user)
+    posts = await post_service.get_following_posts(follow_list=follow_list)
+    return [
+        PostDetailResponse.from_post(post)
+        for post in posts
+    ]
+
 async def get_user_posts_by_id(
     user_id: int,
     post_service: Annotated[PostService, Depends()],

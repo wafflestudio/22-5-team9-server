@@ -1,6 +1,6 @@
 from typing import List, Sequence
 from instaclone.database.connection import SESSION
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, desc
 
 from instaclone.app.post.models import Post
 from instaclone.database.annotation import transactional
@@ -17,6 +17,9 @@ class PostStore:
         result = await SESSION.scalars(select(Post).where(Post.user_id == user_id))
         return result.all()
     
+    async def get_recent_posts_by_user(self, user_id: int) -> Sequence[Post]:
+        result = await SESSION.scalars(select(Post).where(Post.user_id == user_id).order_by(desc(Post.creation_date)).limit(2))
+        return result.all()
     #@transactional
     async def add_post(self, user: User, location: str | None, post_text: str | None, media: List[Medium]) -> Post:
         post = Post(user_id=user.user_id, location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=user)

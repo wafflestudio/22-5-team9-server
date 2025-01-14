@@ -26,3 +26,11 @@ class PostService:
 
     async def delete_post(self, post_id: int) -> None:
         await self.post_store.delete_post(post_id)
+
+    async def get_following_posts(self, follow_list: list[int]) -> list[Post]:
+        posts = []
+        for follow_id in follow_list:
+            posts += await self.post_store.get_recent_posts_by_user(follow_id)
+        sorted_posts: list[Post] = sorted(posts, key=lambda post: post.creation_date, reverse=True)
+
+        return sorted_posts
