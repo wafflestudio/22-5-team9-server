@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import BigInteger, ForeignKey
+from datetime import datetime
+from sqlalchemy import BigInteger, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -11,6 +12,7 @@ class Follower(Base):
 
     follower_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"), primary_key=True)
     following_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # "follower" -> the User who follows
     follower: Mapped["User"] = relationship("User", foreign_keys=[follower_id], back_populates="following_users")
