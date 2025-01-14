@@ -5,7 +5,7 @@ from instaclone.app.user.models import User
 from instaclone.app.user.service import UserService
 from instaclone.app.user.errors import InvalidTokenError
 
-from instaclone.app.follower.dto.responses import FollowerDetailResponse, FollowerListResponse
+from instaclone.app.follower.dto.responses import FollowerDetailResponse, FollowerListResponse, FollowingListResponse
 from instaclone.app.follower.dto.requests import FollowRequest
 from instaclone.app.follower.service import FollowService
 
@@ -44,9 +44,9 @@ async def get_followers(
 async def get_following(
     follower_service: FollowService = Depends(),
     user: User = Depends(login_with_header),
-) -> FollowerListResponse:
+) -> FollowingListResponse:
     following_ids = await follower_service.get_following_list(user=user)
-    return FollowerListResponse.from_follower_list(following_ids)
+    return FollowingListResponse.from_following_list(following_ids)
 
 @follower_router.post("/follow", status_code=HTTP_201_CREATED)
 async def follow(

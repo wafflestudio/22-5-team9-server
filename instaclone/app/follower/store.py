@@ -9,7 +9,7 @@ from instaclone.database.annotation import transactional
 from instaclone.app.follower.errors import CannotFollowSelfError, AlreadyFollowingError, FollowCreationError, UserNotFoundError, NotFollowingError
 
 class FollowerStore:
-    @transactional
+    # @transactional
     async def add_follow(self, user: User, follow_id: int) -> Follower:
         follow_user = await SESSION.get(User, follow_id)
         if not follow_user:
@@ -36,7 +36,7 @@ class FollowerStore:
 
         return new_follow
         
-    @transactional
+    # @transactional
     async def remove_follow(self, user: User, follow_id: int) -> None:
         existing_follow = await SESSION.get(Follower, (user.user_id, follow_id))
         if not existing_follow:
@@ -49,14 +49,14 @@ class FollowerStore:
             await SESSION.rollback()
             raise FollowCreationError()
         
-    @transactional
+    # @transactional
     async def get_followers(self, user: User) -> List[int]:
         query = select(Follower.follower_id).where(Follower.following_id == user.user_id)
         result = await SESSION.execute(query)
         follower_ids = [row[0] for row in result.fetchall()]
         return follower_ids
     
-    @transactional
+    # @transactional
     async def get_following(self, user: User) -> List[int]:
         query = select(Follower.following_id).where(Follower.follower_id == user.user_id)
         result = await SESSION.execute(query)

@@ -13,7 +13,7 @@ class FollowerDetailResponse(BaseModel):
     following_count: int
 
     @staticmethod
-    @transactional
+    # @transactional
     async def get_follower_number(user: User) -> "FollowerDetailResponse":
         follower_result = await SESSION.execute(
             select(func.count(Follower.follower_id)).where(Follower.following_id == user.user_id)
@@ -35,3 +35,10 @@ class FollowerListResponse(BaseModel):
     @staticmethod
     def from_follower_list(follower_ids: List[int]) -> "FollowerListResponse":
         return FollowerListResponse(follower_ids=follower_ids)
+    
+class FollowingListResponse(BaseModel):
+    following_ids: List[int]
+    @staticmethod
+    def from_following_list(following_ids: List[int]) -> "FollowingListResponse":
+        return FollowingListResponse(following_ids=following_ids)
+    
