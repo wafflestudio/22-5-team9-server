@@ -125,7 +125,7 @@ class StoryStore:
         self,
         story_id: int,
         owner: User
-    ) -> List[User]:
+    ) -> Sequence[User]:
 
         story = await self.get_story_by_id(story_id)
         if story.user_id != owner.user_id:
