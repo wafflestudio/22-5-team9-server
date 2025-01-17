@@ -139,7 +139,7 @@ class StoryStore:
         if not highlight:
             raise HighlightDNEError()
         if story.user_id != user.user_id or highlight.user_id != user.user_id:
-            raise PermissionError()
+            raise StoryPermissionError()
         
         highlight_story: HighlightStories = HighlightStories(
             highlight_id=highlight.highlight_id, story_id=story.story_id
@@ -186,7 +186,7 @@ class StoryStore:
         if not highlight:
             raise HighlightDNEError()
         if highlight.user_id != user.user_id:
-            raise PermissionError()
+            raise StoryPermissionError()
         
         try:
             await SESSION.execute(
@@ -198,3 +198,31 @@ class StoryStore:
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Highlight could not be deleted")
+        
+    async def unsave_story(
+            self,
+            user: User,
+            highlight_id: int,
+            story_id: int
+    ):
+        highlight: Highlight = await self.get_highlight(highlight_id=highlight_id)
+        if not highlight:
+            raise HighlightDNEError()
+        if highlight.user_id != user.user_id:
+            raise StoryPermissionError()
+        story_id_results = await SESSION.execute(
+            select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight.highlight_id, HighlightStories.story_id==story_id)
+        )
+        story = story_id_results.scalar()
+        
+        if not story:
+            raise StoryNotExistsError()
+
+        try:
+            await SESSION.execute(
+                delete(HighlightStories).where(HighlightStories.story_id==story_id, HighlightStories.highlight_id==highlight_id)
+            )
+        except Exception as e:
+            await SESSION.rollback()
+            raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Story could not be removed from highlight")
+        

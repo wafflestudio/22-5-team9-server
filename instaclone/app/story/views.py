@@ -121,5 +121,14 @@ async def delete_highlight(
     story_service: Annotated[StoryService, Depends()]
 ):
     await story_service.delete_highlight(user=user, highlight_id=highlight_id)
+    return "Success"
 
-# @story_router.delete("/highlightstory/{highlight_id}/{story_id}")
+@story_router.delete("/highlightstory/{highlight_id}/{story_id}")
+async def unsave_story(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    story_id: int,
+    story_service: Annotated[StoryService, Depends()]
+):
+    await story_service.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
+    return "Success"

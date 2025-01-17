@@ -60,4 +60,11 @@ class StoryService:
             highlight_id: int
     ):
         await self.story_store.delete_highlight(user=user, highlight_id=highlight_id)
-        pass
+
+    async def unsave_story(
+            self,
+            user: User,
+            highlight_id: int,
+            story_id: int
+    ):
+        await self.story_store.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
