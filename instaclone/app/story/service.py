@@ -51,7 +51,6 @@ class StoryService:
     async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
         return await self.story_store.get_highlight_list(user_id=user_id)
     
-
     async def edit_highlight():
         pass
 

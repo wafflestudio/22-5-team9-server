@@ -76,20 +76,26 @@ async def add_new_highlight(
     medium_service: Annotated[MediumService, Depends()],
     highlight_create_request: HighlightCreateRequest = Depends(),
 ) -> HighlightDetailResponse:
-    story = await story_service.get_story(story_id=story_id)
     if highlight_create_request.cover_image:
         cover_image = await medium_service.create_medium(highlight_create_request.cover_image)
     else:
+        story = await story_service.get_story(story_id=story_id)
         cover_image = story.media[0]
     highlight = await story_service.create_highlight(user=user, highlight_cover=cover_image, highlight_name=highlight_create_request.highlight_name)
-    highlight = await story_service.add_story_highlight(user=user, story_id=story.story_id, highlight_id=highlight.highlight_id)
+    highlight = await story_service.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight.highlight_id)
     response = await HighlightDetailResponse.from_highlight(highlight=highlight)
     return response
 
 # # Add story to existing highlight
 @story_router.post("/highlight/add/{highlight_id}/{story_id}", status_code=HTTP_200_OK)
-async def add_to_highlight():
-    pass
+async def add_to_highlight(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    story_id: int,
+    story_service: Annotated[StoryService, Depends()]
+):
+    highlight = await story_service.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight_id)
+    return await HighlightDetailResponse.from_highlight(highlight=highlight)
 
 # # Get all highlights of a user using user id
 @story_router.get("/highlights/{user_id}")
