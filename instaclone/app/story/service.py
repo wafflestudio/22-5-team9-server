@@ -54,5 +54,10 @@ class StoryService:
     async def edit_highlight():
         pass
 
-    async def delete_highlight():
+    async def delete_highlight(
+            self,
+            user: User,
+            highlight_id: int
+    ):
+        await self.story_store.delete_highlight(user=user, highlight_id=highlight_id)
         pass

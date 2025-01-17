@@ -68,7 +68,7 @@ async def delete_story(
 ######## Highlight views #######
 
 # Create highlight and add new story
-@story_router.post("/highlight/new/{story_id}", status_code=HTTP_200_OK)
+@story_router.post("/highlight/new/{story_id}", status_code=HTTP_201_CREATED)
 async def add_new_highlight(
     user: Annotated[User, Depends(login_with_header)],
     story_id: int,
@@ -87,7 +87,7 @@ async def add_new_highlight(
     return response
 
 # # Add story to existing highlight
-@story_router.post("/highlight/add/{highlight_id}/{story_id}", status_code=HTTP_200_OK)
+@story_router.post("/highlight/add/{highlight_id}/{story_id}", status_code=HTTP_201_CREATED)
 async def add_to_highlight(
     user: Annotated[User, Depends(login_with_header)],
     highlight_id: int,
@@ -98,7 +98,7 @@ async def add_to_highlight(
     return await HighlightDetailResponse.from_highlight(highlight=highlight)
 
 # # Get all highlights of a user using user id
-@story_router.get("/highlights/{user_id}")
+@story_router.get("/highlights/{user_id}", status_code=HTTP_200_OK)
 async def get_highlights(
     user_id: int,
     story_service: Annotated[StoryService, Depends()],
@@ -107,9 +107,19 @@ async def get_highlights(
     return [await HighlightDetailResponse.from_highlight(highlight) for highlight in highlights]
 
 # # Get single highlight using highlight_id
-@story_router.get("/highlight/{highlight_id}")
+@story_router.get("/highlight/{highlight_id}", status_code=HTTP_200_OK)
 async def get_highlight(
     highlight_id: int,
     story_service: Annotated[StoryService, Depends()]
 ) -> HighlightDetailResponse:
     return await HighlightDetailResponse.from_highlight(await story_service.get_highlight(highlight_id=highlight_id))
+
+@story_router.delete("/highlight/{highlight_id}")
+async def delete_highlight(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    story_service: Annotated[StoryService, Depends()]
+):
+    await story_service.delete_highlight(user=user, highlight_id=highlight_id)
+
+# @story_router.delete("/highlightstory/{highlight_id}/{story_id}")

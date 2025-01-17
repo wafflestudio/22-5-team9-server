@@ -11,6 +11,7 @@ from instaclone.database.annotation import transactional
 from instaclone.database.connection import SESSION
 from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError
 from instaclone.common.errors import DebugError
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 class StoryStore:
     async def get_user_from_id(self, user_id: int) -> User:
@@ -176,5 +177,24 @@ class StoryStore:
     async def edit_highlight():
         pass
 
-    async def delete_highlight():
-        pass
+    async def delete_highlight(
+            self,
+            user: User,
+            highlight_id: int
+    ):
+        highlight : Highlight = await self.get_highlight(highlight_id=highlight_id)
+        if not highlight:
+            raise HighlightDNEError()
+        if highlight.user_id != user.user_id:
+            raise PermissionError()
+        
+        try:
+            await SESSION.execute(
+                delete(HighlightStories).where(HighlightStories.highlight_id==highlight_id)
+            )
+            await SESSION.execute(
+                delete(Highlight).where(Highlight.highlight_id==highlight_id)
+            )
+        except Exception as e:
+            await SESSION.rollback()
+            raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Highlight could not be deleted")
