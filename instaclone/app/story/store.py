@@ -96,6 +96,7 @@ class StoryStore:
             raise StoryPermissionError()
         
         delete_query = delete(Story).where(Story.story_id == story_id)
+        await self.clean_up(story_id=story_id)
         await SESSION.execute(delete(Medium).where(Medium.story_id == story_id))
         await SESSION.execute(delete_query)
         await SESSION.commit()
@@ -224,4 +225,31 @@ class StoryStore:
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Story could not be removed from highlight")
+        
+    async def clean_up(self,
+                        story_id: int):
+        highlight_ids = await SESSION.execute(
+            select(HighlightStories.highlight_id).where(HighlightStories.story_id==story_id)
+        )
+        highlight_ids = highlight_ids.scalars().all()
+        await SESSION.execute(
+            delete(HighlightStories).where(HighlightStories.story_id==story_id)
+        )
+        for highlight_id in highlight_ids:
+            story_id_results = await SESSION.execute(
+                select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight_id)
+            )
+            story_ids: Sequence[int] = story_id_results.scalars().all()
+            list_story_ids = list(story_ids)
+            if story_id in list_story_ids:
+                list_story_ids = list_story_ids.remove(story_id)
+            if list_story_ids == []:
+                await SESSION.execute(
+                    delete(Highlight).where(Highlight.highlight_id==highlight_id)
+                )
+        try:
+            await SESSION.commit()
+        except Exception as e:
+            await SESSION.rollback()
+            raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Clean up failed")
         

@@ -76,7 +76,7 @@ async def add_new_highlight(
     medium_service: Annotated[MediumService, Depends()],
     highlight_create_request: HighlightCreateRequest = Depends(),
 ) -> HighlightDetailResponse:
-    if highlight_create_request.cover_image:
+    if type(highlight_create_request.cover_image) == UploadFile:
         cover_image = await medium_service.create_medium(highlight_create_request.cover_image)
     else:
         story = await story_service.get_story(story_id=story_id)
