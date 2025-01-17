@@ -4,10 +4,10 @@ from sqlalchemy.sql import select, delete
 
 from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
-from instaclone.app.story.models import Story
+from instaclone.app.story.models import Story, StoryView
 from instaclone.database.annotation import transactional
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, StoryViewPermissionError
 
 class StoryStore:
     async def get_user_from_id(self, user_id: int) -> User:
@@ -96,5 +96,48 @@ class StoryStore:
         await SESSION.execute(delete_query)
         await SESSION.commit()
         return "SUCCESS"
+
+    async def record_story_view(
+        self,
+        story_id: int,
+        viewer: User
+    ) -> None:
+        story = await self.get_story_by_id(story_id)
+        
+        #if the viewer is the story owner, do nothing
+        if story.user_id == viewer.user_id:
+            return
+        
+        #check if already recorded
+        query = select(StoryView).where(
+            StoryView.story_id == story_id,
+            StoryView.user_id == viewer.user_id
+        )
+        existing_view = await SESSION.scalar(query)
+        
+        if not existing_view:
+            view = StoryView(story_id=story_id, user_id=viewer.user_id)
+            SESSION.add(view)
+            await SESSION.commit()
+    
+    # getting users who viewed story
+    async def get_story_viewers(
+        self,
+        story_id: int,
+        owner: User
+    ) -> Sequence[User]:
+
+        story = await self.get_story_by_id(story_id)
+        if story.user_id != owner.user_id:
+            raise StoryViewPermissionError()
+        
+        query = (
+            select(User)
+            .join(StoryView, StoryView.user_id == User.user_id)
+            .where(StoryView.story_id == story_id)
+            .order_by(StoryView.viewed_at.desc())
+        )
+        result = await SESSION.scalars(query)
+        return result.all()
 
         
