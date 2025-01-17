@@ -34,3 +34,19 @@ class PostStore:
             await SESSION.delete(post)
             await SESSION.commit()
             # await SESSION.flush()
+
+    async def update_post(
+        self,
+        post_id: int,
+        location: str | None,
+        post_text: str | None
+    ) -> Post | None:
+        post = await self.get_post_by_id(post_id)
+        if not post:
+            return None
+        if location is not None:
+            post.location = location
+        if post_text is not None:
+            post.post_text = post_text
+        await SESSION.commit()
+        return post

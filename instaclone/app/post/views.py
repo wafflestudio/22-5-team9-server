@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from instaclone.app.post.dto.requests import PostPutRequest, PostGetRequest
+from instaclone.app.post.dto.requests import PostPutRequest, PostGetRequest, PostPatchRequest
 from instaclone.app.post.dto.responses import PostDetailResponse
 from instaclone.app.post.service import PostService
 from instaclone.app.user.models import User
@@ -93,6 +93,22 @@ async def get_user_posts_by_username(
 @post_router.delete("/{post_id}", status_code=HTTP_204_NO_CONTENT)
 async def delete_post(
     post_id: int,
+    user: Annotated[User, Depends(login_with_header)],
     post_service: Annotated[PostService, Depends()],
 ) -> None:
-    await post_service.delete_post(post_id)
+    await post_service.delete_post(post_id, user)
+
+@post_router.patch("/{post_id}", status_code=HTTP_200_OK)
+async def edit_post(
+    post_id: int,
+    user: Annotated[User, Depends(login_with_header)],
+    post_service: Annotated[PostService, Depends()],
+    post_request: PostPatchRequest = Depends()
+) -> PostDetailResponse:
+    updated_post = await post_service.edit_post(
+        post_id=post_id,
+        current_user=user,
+        location=post_request.location,
+        post_text=post_request.post_text
+    )
+    return PostDetailResponse.from_post(updated_post)
