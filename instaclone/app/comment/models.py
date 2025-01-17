@@ -7,6 +7,7 @@ from instaclone.database.common import Base
 if TYPE_CHECKING:
     from instaclone.app.user.models import User
     from instaclone.app.post.models import Post
+    from instaclone.app.like.models import CommentLike
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -28,3 +29,4 @@ class Comment(Base):
     post: Mapped["Post"] = relationship("Post", back_populates="comments")
     replies: Mapped[list["Comment"]] = relationship("Comment", back_populates="parent", cascade="all, delete-orphan", lazy="selectin")
     parent: Mapped[Optional["Comment"]] = relationship("Comment", remote_side="Comment.comment_id", back_populates="replies")
+    likes: Mapped[list["CommentLike"]] = relationship("CommentLike", back_populates="comment")
