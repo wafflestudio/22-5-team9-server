@@ -174,9 +174,6 @@ class StoryStore:
 
         return highlight
 
-    async def edit_highlight():
-        pass
-
     async def delete_highlight(
             self,
             user: User,
@@ -195,6 +192,7 @@ class StoryStore:
             await SESSION.execute(
                 delete(Highlight).where(Highlight.highlight_id==highlight_id)
             )
+            await SESSION.commit()
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Highlight could not be deleted")
@@ -222,6 +220,7 @@ class StoryStore:
             await SESSION.execute(
                 delete(HighlightStories).where(HighlightStories.story_id==story_id, HighlightStories.highlight_id==highlight_id)
             )
+            await SESSION.commit()
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Story could not be removed from highlight")
