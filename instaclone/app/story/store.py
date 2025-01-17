@@ -1,13 +1,16 @@
 from typing import List, Sequence
 from datetime import datetime, timezone
 from sqlalchemy.sql import select, delete
+from sqlalchemy.orm import selectinload
+from fastapi import HTTPException
 
 from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
-from instaclone.app.story.models import Story, Highlight
+from instaclone.app.story.models import Story, Highlight, HighlightStories
 from instaclone.database.annotation import transactional
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError
+from instaclone.common.errors import DebugError
 
 class StoryStore:
     async def get_user_from_id(self, user_id: int) -> User:
@@ -111,5 +114,67 @@ class StoryStore:
 
         highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
         SESSION.add(highlight)
-        await SESSION.commit()
+        try:
+            await SESSION.commit()
+        except HTTPException as e:
+            await SESSION.rollback()
+            raise DebugError(e.status_code, e.detail)
         return highlight
+    
+    async def add_story_highlight(
+            self,
+            user: User,
+            story_id: int,
+            highlight_id: int
+    ) -> Highlight:
+        story : Story = await self.get_story_by_id(story_id)
+
+        highlight: Highlight | None = (
+            await SESSION.execute(
+                select(Highlight).where(Highlight.highlight_id==highlight_id).options(selectinload(Highlight.story_ids))
+            )
+        ).scalar_one_or_none()
+
+        if not highlight:
+            raise HighlightDNEError()
+        if story.user_id != user.user_id or highlight.user_id != user.user_id:
+            raise PermissionError()
+        
+        highlight_story: HighlightStories = HighlightStories(
+            highlight_id=highlight.highlight_id, story_id=story.story_id
+        )
+        SESSION.add(highlight_story)
+
+        if not story:
+            raise DebugError(HTTPException, "Story Invalid")
+
+        try:
+            await SESSION.commit()
+            await SESSION.refresh(highlight)
+        except HTTPException as e:
+            await SESSION.rollback()
+            raise DebugError(e.status_code, e.detail)
+        return highlight
+    
+    async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
+        query = select(Highlight).where(Highlight.user_id == user_id)
+
+        result = await SESSION.scalars(query)
+        highlights = result.all()
+
+        return highlights
+    
+    async def get_highlight(self, highlight_id):
+        query = select(Highlight).where(Highlight.highlight_id == highlight_id)
+        highlight = await SESSION.scalar(query)
+
+        if not highlight:
+            raise HighlightDNEError()
+
+        return highlight
+
+    async def edit_highlight():
+        pass
+
+    async def delete_highlight():
+        pass

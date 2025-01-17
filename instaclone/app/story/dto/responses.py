@@ -1,8 +1,12 @@
-from typing import List
+from __future__ import annotations
+from typing import List, Sequence
 from pydantic import BaseModel
 from datetime import datetime
 
-from instaclone.app.story.models import Story, Highlight
+from instaclone.app.story.models import Story, Highlight, HighlightStories
+from instaclone.app.medium.models import Medium
+from instaclone.database.connection import SESSION
+from sqlalchemy.future import select
 
 class StoryDetailResponse(BaseModel):
     story_id: int
@@ -26,13 +30,25 @@ class HighlightDetailResponse(BaseModel):
     highlight_id: int
     highlight_name: str
     cover_image: str
-    stories: List[StoryDetailResponse]
+    story_ids: Sequence[int]
 
     @staticmethod
-    def from_highlight(highlight: Highlight):
+    async def from_highlight(highlight: Highlight):
+        # Try accessing stories safely
+        story_id_results = await SESSION.execute(
+            select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight.highlight_id)
+        )
+        story_ids = story_id_results.scalars().all()
+
         return HighlightDetailResponse(
             highlight_id=highlight.highlight_id,
             highlight_name=str(highlight.highlight_name),
             cover_image=highlight.media.url,
-            stories=[StoryDetailResponse.from_story(story) for story in highlight.stories]
+            story_ids=story_ids
         )
+    
+    class Config:
+        orm_mode = True
+
+StoryDetailResponse.model_rebuild()
+HighlightDetailResponse.model_rebuild()

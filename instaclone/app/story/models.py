@@ -25,7 +25,9 @@ class Story(Base):
     user: Mapped["User"] = relationship("User", back_populates="stories")
     # 1(story) to N(media)
     media: Mapped[list["Medium"]] = relationship("Medium", back_populates="story", lazy="selectin")
-    
+    highlights: Mapped[list["Highlight"]] = relationship(
+        "Highlight", secondary="highlight_stories", back_populates="story_ids"
+    )
     
     @staticmethod
     def calculate_expiration_date(creation_date: datetime) -> datetime:
@@ -44,8 +46,10 @@ class Highlight(Base):
     # user_id
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
     highlight_name: Mapped[String] = mapped_column(String(15), nullable=False)
-    stories: Mapped[list["Story"]] = relationship("Story", secondary="highlight_stories")
-    media: Mapped["Medium"] = relationship("Medium", back_populates="story", lazy="selectin")
+    cover_image_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("media.image_id"))
+    
+    story_ids: Mapped[list[int]] = relationship("Story", secondary="highlight_stories", back_populates="highlights")
+    media: Mapped["Medium"] = relationship("Medium", lazy="selectin")
 
 class HighlightStories(Base):
     __tablename__ = "highlight_stories"

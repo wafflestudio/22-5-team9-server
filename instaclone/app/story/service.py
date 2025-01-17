@@ -37,15 +37,20 @@ class StoryService:
     async def delete_story(self, user: User, story_id: int):
         await self.story_store.delete_story(user, story_id)
 
-    async def create_highlight(self, user:User, story_id: int, highlight_name: str, highlight_cover: Medium) -> Highlight:
+    async def create_highlight(self, user: User,  highlight_name: str, highlight_cover: Medium) -> Highlight:
         highlight = await self.story_store.create_highlight(user=user, highlight_name=highlight_name, cover_image=highlight_cover)
         return highlight
     
-    async def add_story_highlight():
-        pass
+    async def add_story_highlight(self, user: User, story_id: int, highlight_id: int) -> Highlight:
+        updated_highlight: Highlight = await self.story_store.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight_id)
+        return updated_highlight
     
-    async def get_highlight():
-        pass
+    async def get_highlight(self, highlight_id) -> Highlight:
+        return await self.story_store.get_highlight(highlight_id=highlight_id)
+
+    async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
+        return await self.story_store.get_highlight_list(user_id=user_id)
+    
 
     async def edit_highlight():
         pass
