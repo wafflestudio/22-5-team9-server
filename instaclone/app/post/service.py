@@ -34,3 +34,6 @@ class PostService:
         sorted_posts: list[Post] = sorted(posts, key=lambda post: post.creation_date, reverse=True)
 
         return sorted_posts
+    
+    async def get_all_posts(self):
+        return await self.post_store.get_all_posts()

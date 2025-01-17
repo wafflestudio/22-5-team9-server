@@ -34,3 +34,9 @@ class PostStore:
             await SESSION.delete(post)
             await SESSION.commit()
             # await SESSION.flush()
+
+    async def get_all_posts(self):
+        posts = await SESSION.execute(
+            select(Post).order_by(desc(Post.creation_date))
+        )
+        return posts.scalars().all()
