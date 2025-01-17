@@ -1,6 +1,7 @@
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from instaclone.database.connection import SESSION
+from instaclone.common.errors import InvalidFieldFormatError
 from instaclone.app.user.models import User
 from instaclone.app.like.models import PostLike, StoryLike, CommentLike
 from instaclone.app.like.errors import (
@@ -74,4 +75,4 @@ class LikeStore:
         elif like_type == 'comment':
             return CommentLike
         else:
-            raise ValueError("Invalid like type")
+            raise InvalidFieldFormatError("Choose 'post', 'story' or 'comment'")
