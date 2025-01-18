@@ -3,17 +3,32 @@ from sqlalchemy.exc import IntegrityError
 from instaclone.database.connection import SESSION
 from instaclone.common.errors import InvalidFieldFormatError
 from instaclone.app.user.models import User
+from instaclone.app.story.models import Story
 from instaclone.app.like.models import PostLike, StoryLike, CommentLike
 from instaclone.app.like.errors import (
     AlreadyLikedError,
     LikeNotFoundError,
     LikeCreationError,
+    ContentNotFoundError,
+    SelfStoryLikeError
 )
 
 class LikeStore:
     async def add_like(self, user: User, content_id: int, like_type: str) -> object:
         # 각 좋아요 테이블을 get_like_table을 통해 선택
         table = self.get_like_table(like_type)  
+        
+        if like_type == 'story':
+            story_query = await SESSION.execute(
+                select(Story).where(Story.story_id == content_id)  # Story 테이블을 쿼리
+            )
+            story = story_query.scalars().first()
+
+            if story is None:
+                raise ContentNotFoundError()
+            if story.user_id == user.user_id:
+                raise SelfStoryLikeError()
+            
         existing_like = await SESSION.execute(
             select(table).where(
                 table.user_id == user.user_id,
@@ -59,6 +74,11 @@ class LikeStore:
 
     async def get_likers(self, content_id: int, like_type: str) -> list[int]:
         table = self.get_like_table(like_type)
+        content_query = await SESSION.execute(
+            select(table.content_id).where(table.content_id == content_id)
+        )
+        if not content_query.scalars().first():
+            raise ContentNotFoundError()
         result = await SESSION.execute(
             select(table.user_id).where(
                 table.content_id == content_id,
