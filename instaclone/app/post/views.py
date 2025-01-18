@@ -30,6 +30,16 @@ async def create_post(
     )
     return PostDetailResponse.from_post(post)
 
+@post_router.get("/explore", status_code=HTTP_200_OK)
+async def explore_tab(
+    post_service: Annotated[PostService, Depends()]
+):
+    posts = await post_service.get_all_posts()
+    return [
+        PostDetailResponse.from_post(post)
+        for post in posts
+    ]
+
 @post_router.get("/{post_id}", status_code=HTTP_200_OK)
 async def get_post(
     post_id: int,
@@ -89,6 +99,7 @@ async def get_user_posts_by_username(
         PostDetailResponse.from_post(post)
         for post in posts
     ]
+
 
 @post_router.delete("/{post_id}", status_code=HTTP_204_NO_CONTENT)
 async def delete_post(
