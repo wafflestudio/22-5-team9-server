@@ -50,3 +50,9 @@ class PostStore:
             post.post_text = post_text
         await SESSION.commit()
         return post
+      
+    async def get_all_posts(self):
+        posts = await SESSION.execute(
+            select(Post).order_by(desc(Post.creation_date))
+        )
+        return posts.scalars().all()

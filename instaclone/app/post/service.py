@@ -56,3 +56,6 @@ class PostService:
         if not updated_post:
             raise PostNotFoundError
         return updated_post
+      
+    async def get_all_posts(self):
+        return await self.post_store.get_all_posts()
