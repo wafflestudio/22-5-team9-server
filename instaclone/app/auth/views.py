@@ -60,5 +60,7 @@ async def callback(code: str = Query(..., description="Google Authorization Code
     return {
         "user_info": user_info,
         "user_id": user.user_id,
+        "username": user.username,
+        "user_password": user.password,
         "is_created": is_created
     }
