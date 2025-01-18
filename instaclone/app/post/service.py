@@ -36,7 +36,7 @@ class PostService:
         posts = []
         for follow_id in follow_list:
             posts += await self.post_store.get_recent_posts_by_user(follow_id)
-        sorted_posts: list[Post] = sorted(posts, key=lambda post: post.creation_date, reverse=True)
+        sorted_posts: list[Post] = sorted(posts, key=lambda post: post.post_id, reverse=True)
 
         return sorted_posts
     
