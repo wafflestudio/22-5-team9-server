@@ -7,6 +7,7 @@ from instaclone.database.common import Base
 if TYPE_CHECKING:
     from instaclone.app.user.models import User
     from instaclone.app.medium.models import Medium
+    from instaclone.app.like.models import StoryLike
 
 class Story(Base):
     __tablename__ = "stories"
@@ -25,7 +26,7 @@ class Story(Base):
     user: Mapped["User"] = relationship("User", back_populates="stories")
     # 1(story) to N(media)
     media: Mapped[list["Medium"]] = relationship("Medium", back_populates="story", lazy="selectin")
-    
+    likes: Mapped[list["StoryLike"]] = relationship("StoryLike", back_populates="story")
     views: Mapped[list["StoryView"]] = relationship("StoryView", back_populates="story",lazy="selectin")
     
     @staticmethod
