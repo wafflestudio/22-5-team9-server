@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List
 from pydantic import EmailStr
-from sqlalchemy import String, BigInteger, Date, ForeignKey
+from sqlalchemy import String, BigInteger, Date, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -26,11 +26,13 @@ class User(Base):
     # email
     email: Mapped[EmailStr] = mapped_column(String(100), unique=True)
     # phone_number : 010XXXXXXXX
-    phone_number: Mapped[str] = mapped_column(String(11), unique=True)
+    phone_number: Mapped[str] = mapped_column(String(11), unique=True, nullable=True)
     # creation_date : YYYY-MM-DD
     creation_date: Mapped[Date] = mapped_column(Date)
     # profile_image : file path string
     profile_image: Mapped[str] = mapped_column(String(100))
+    # social : bool
+    social: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
 
     # gender
     gender: Mapped[str] = mapped_column(String(10), nullable=True)

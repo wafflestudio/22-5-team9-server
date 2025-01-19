@@ -23,6 +23,7 @@ async def get_or_create_user_from_google(user_info: dict):
                     phone_number=99999999999,
                     creation_date=datetime.today().date(),
                     profile_image=user_info.get("picture"),
+                    social=True
                 )
                 session.add(user)
                 await session.commit()
