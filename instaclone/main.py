@@ -3,14 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from instaclone.api import api_router
+from instaclone.app.auth.views import google_oauth_router
 
 app = FastAPI()
 
 app.include_router(api_router, prefix="/api")
+app.include_router(google_oauth_router, prefix='/auth')
 
 origins = [
     "https://d3l72zsyuz0duc.cloudfront.net/",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://localhost:8000"
 ]
 
 app.add_middleware(
