@@ -121,3 +121,6 @@ class UserService:
     async def refresh_token(self, refresh_token: str) -> tuple[str, str]:
         new_access_token, new_refresh_token = await refresh_access_token(refresh_token, access_expires=timedelta(minutes=10), refresh_expires=timedelta(hours=24))
         return new_access_token, new_refresh_token
+    
+    async def search_users(self, query: str) -> list[User]:
+        return await self.user_store.search_users(query)

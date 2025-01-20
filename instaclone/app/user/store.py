@@ -2,7 +2,7 @@ from typing import Sequence
 from datetime import datetime, date
 from pydantic import EmailStr
 from sqlalchemy.sql import select
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from instaclone.app.user.models import User
 from instaclone.database.annotation import transactional
@@ -81,3 +81,13 @@ class UserStore:
         SESSION.add(user)
         await SESSION.commit()
         return user
+    
+    async def search_users(self, query: str) -> list[User]:
+        stmt = (
+            select(User)
+            .where(User.username.like(f"{query}%"))
+            .order_by(User.username.asc())
+            #.limit(50)  
+        )
+        result = await SESSION.scalars(stmt)
+        return result.all()
