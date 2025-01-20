@@ -6,10 +6,9 @@ from fastapi import HTTPException
 
 from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
-from instaclone.app.story.models import Story, Highlight, HighlightStories
-from instaclone.database.annotation import transactional
+from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -160,7 +159,6 @@ class StoryStore:
     
     async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
         query = select(Highlight).where(Highlight.user_id == user_id)
-
         result = await SESSION.scalars(query)
         highlights = result.all()
 
@@ -252,4 +250,46 @@ class StoryStore:
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Clean up failed")
+
+    async def record_story_view(
+        self,
+        story_id: int,
+        viewer: User
+    ) -> None:
+        story = await self.get_story_by_id(story_id)
         
+        #if the viewer is the story owner, do nothing
+        if story.user_id == viewer.user_id:
+            return
+        
+        #check if already recorded
+        query = select(StoryView).where(
+            StoryView.story_id == story_id,
+            StoryView.user_id == viewer.user_id
+        )
+        existing_view = await SESSION.scalar(query)
+        
+        if not existing_view:
+            view = StoryView(story_id=story_id, user_id=viewer.user_id)
+            SESSION.add(view)
+            await SESSION.commit()
+    
+    # getting users who viewed story
+    async def get_story_viewers(
+        self,
+        story_id: int,
+        owner: User
+    ) -> Sequence[User]:
+
+        story = await self.get_story_by_id(story_id)
+        if story.user_id != owner.user_id:
+            raise StoryViewPermissionError()
+        
+        query = (
+            select(User)
+            .join(StoryView, StoryView.user_id == User.user_id)
+            .where(StoryView.story_id == story_id)
+            .order_by(StoryView.viewed_at.desc())
+        )
+        result = await SESSION.scalars(query)
+        return result.all()

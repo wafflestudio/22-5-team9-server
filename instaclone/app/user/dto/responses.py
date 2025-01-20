@@ -6,7 +6,7 @@ from datetime import date, datetime
 from instaclone.app.user.models import User
 from instaclone.app.post.models import Post
 from instaclone.common.errors import InvalidFieldFormatError
-from instaclone.app.follower.dto.responses import FollowerDetailResponse
+from instaclone.app.follower.dto.responses import FollowerDetailResponse, FollowerListResponse, FollowingListResponse
 
 
 class UserDetailResponse(BaseModel):
@@ -21,8 +21,10 @@ class UserDetailResponse(BaseModel):
     birthday: date | None
     introduce: str | None
     website: str | None
-    followers: int
-    following: int
+    follower_count: int
+    following_count: int
+    followers: list[int]
+    following: list[int]
     post_count: int
     post_ids: list[int]
 
@@ -39,6 +41,8 @@ class UserDetailResponse(BaseModel):
                 post_ids.append(post.post_id)
 
         follower_response = await FollowerDetailResponse.get_follower_number(user)
+        followers = await FollowerListResponse.get_followers(user)
+        following = await FollowingListResponse.get_following(user)
 
         return UserDetailResponse(
             user_id=user.user_id,
@@ -52,8 +56,10 @@ class UserDetailResponse(BaseModel):
             birthday=user.birthday,
             introduce=user.introduce,
             website=user.website,
-            followers=follower_response.follower_count,
-            following=follower_response.following_count,
+            follower_count=follower_response.follower_count,
+            following_count=follower_response.following_count,
+            followers=followers,
+            following=following,
             post_count=len(user.posts),
             post_ids=post_ids
         )

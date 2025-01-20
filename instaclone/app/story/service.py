@@ -1,5 +1,6 @@
 from typing import Annotated, Sequence, List
 from fastapi import Depends, UploadFile, File
+from datetime import datetime, timezone
 from uuid import uuid4
 import os
 
@@ -21,8 +22,11 @@ class StoryService:
         story = await self.story_store.add_story(user, media)
         return story
     
-    async def get_story(self, story_id: int) -> Story:
+    async def get_story(self, story_id: int, current_user: User) -> Story:
         story = await self.story_store.get_story_by_id(story_id)
+        if story.expiration_date > datetime.now():
+            if story.user_id != current_user.user_id:
+                await self.story_store.record_story_view(story_id, current_user)
         return story
     
     async def get_story_list(self, user_id: int) -> Sequence["Story"]:
@@ -65,3 +69,6 @@ class StoryService:
             story_id: int
     ):
         await self.story_store.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
+        
+    async def get_story_viewers(self, story_id: int, owner: User) -> List[User]:
+        return await self.story_store.get_story_viewers(story_id, owner)

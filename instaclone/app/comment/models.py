@@ -7,6 +7,7 @@ from instaclone.database.common import Base
 if TYPE_CHECKING:
     from instaclone.app.user.models import User
     from instaclone.app.post.models import Post
+    from instaclone.app.like.models import CommentLike
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -14,7 +15,7 @@ class Comment(Base):
     # user_id
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
     # post_id
-    post_id: Mapped[int] = mapped_column(BigInteger)
+    post_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("posts.post_id"))
     # comment_id
     comment_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     # parent_id
@@ -26,5 +27,6 @@ class Comment(Base):
      # relationships
     user: Mapped["User"] = relationship("User", back_populates="comments")
     post: Mapped["Post"] = relationship("Post", back_populates="comments")
-    replies: Mapped[list["Comment"]] = relationship("Comment", back_populates="parent", cascade="all, delete-orphan")
+    replies: Mapped[list["Comment"]] = relationship("Comment", back_populates="parent", cascade="all, delete-orphan", lazy="selectin")
     parent: Mapped[Optional["Comment"]] = relationship("Comment", remote_side="Comment.comment_id", back_populates="replies")
+    likes: Mapped[list["CommentLike"]] = relationship("CommentLike", back_populates="comment")

@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from instaclone.app.user.models import User
     from instaclone.app.medium.models import Medium
     from instaclone.app.comment.models import Comment
+    from instaclone.app.like.models import PostLike
 
 class Post(Base):
     __tablename__ = "posts"
@@ -29,4 +30,5 @@ class Post(Base):
     user: Mapped["User"] = relationship("User", back_populates="posts")
     # 1(story) to N(media)
     media: Mapped[list["Medium"]] = relationship("Medium", back_populates="post", lazy='selectin')
-    #comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="post")
+    comments: Mapped[list["Comment"]] = relationship("Comment", back_populates="post")
+    likes: Mapped[list["PostLike"]] = relationship("PostLike", back_populates="post")

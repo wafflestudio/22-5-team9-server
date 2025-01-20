@@ -7,6 +7,7 @@ from instaclone.database.common import Base
 if TYPE_CHECKING:
     from instaclone.app.user.models import User
     from instaclone.app.medium.models import Medium
+    from instaclone.app.like.models import StoryLike
 
 class Story(Base):
     __tablename__ = "stories"
@@ -28,10 +29,33 @@ class Story(Base):
     highlights: Mapped[list["Highlight"]] = relationship(
         "Highlight", secondary="highlight_stories", back_populates="story_ids"
     )
+    likes: Mapped[list["StoryLike"]] = relationship("StoryLike", back_populates="story")
+    views: Mapped[list["StoryView"]] = relationship("StoryView", back_populates="story",lazy="selectin")
     
     @staticmethod
     def calculate_expiration_date(creation_date: datetime) -> datetime:
         return creation_date + timedelta(hours=24)
+    
+class StoryView(Base):
+    __tablename__ = "story_views"
+
+    story_view_id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=True
+    )
+    story_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("stories.story_id"), nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id"), nullable=False
+    )
+    viewed_at: Mapped[datetime] = mapped_column(
+        DATETIME, default=datetime.utcnow, nullable=False
+    )
+
+    story: Mapped["Story"] = relationship("Story", back_populates="views", lazy="selectin")
+    user: Mapped["User"] = relationship("User", back_populates="story_views", lazy="selectin")
+
+    #views: Mapped[list["StoryView"]] = relationship("StoryView", back_populates="story", lazy="selectin")
     
 @event.listens_for(Story, "before_insert")
 def set_expiration_date(_, __, target: Story):

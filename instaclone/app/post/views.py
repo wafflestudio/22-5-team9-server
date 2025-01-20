@@ -2,12 +2,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from instaclone.app.post.dto.requests import PostPutRequest, PostGetRequest
+from instaclone.app.post.dto.requests import PostPutRequest, PostGetRequest, PostPatchRequest
 from instaclone.app.post.dto.responses import PostDetailResponse
 from instaclone.app.post.service import PostService
 from instaclone.app.user.models import User
 from instaclone.app.user.views import login_with_header
 from instaclone.app.user.service import UserService
+from instaclone.app.follower.service import FollowService
 from instaclone.app.user.errors import UserDoesNotExistError
 from instaclone.app.medium.service import MediumService
 
@@ -28,6 +29,16 @@ async def create_post(
         media=media
     )
     return PostDetailResponse.from_post(post)
+
+@post_router.get("/explore", status_code=HTTP_200_OK)
+async def explore_tab(
+    post_service: Annotated[PostService, Depends()]
+):
+    posts = await post_service.get_all_posts()
+    return [
+        PostDetailResponse.from_post(post)
+        for post in posts
+    ]
 
 @post_router.get("/{post_id}", status_code=HTTP_200_OK)
 async def get_post(
@@ -50,7 +61,20 @@ async def get_user_posts(
         return await get_user_posts_by_id(user_id=user_parameter, post_service=post_service)
     except ValueError:
         return await get_user_posts_by_username(username=str(user_parameter), user_service=user_service, post_service=post_service)
-    
+
+@post_router.get("/posts/following")
+async def get_following_posts(
+    user: Annotated[User, Depends(login_with_header)],
+    post_service: Annotated[PostService, Depends()],
+    follow_service: Annotated[FollowService, Depends()]        
+) -> list[PostDetailResponse]:
+    follow_list = await follow_service.get_following_list(user)
+    posts = await post_service.get_following_posts(follow_list=follow_list)
+    return [
+        PostDetailResponse.from_post(post)
+        for post in posts
+    ]
+
 async def get_user_posts_by_id(
     user_id: int,
     post_service: Annotated[PostService, Depends()],
@@ -76,9 +100,26 @@ async def get_user_posts_by_username(
         for post in posts
     ]
 
+
 @post_router.delete("/{post_id}", status_code=HTTP_204_NO_CONTENT)
 async def delete_post(
     post_id: int,
+    user: Annotated[User, Depends(login_with_header)],
     post_service: Annotated[PostService, Depends()],
 ) -> None:
-    await post_service.delete_post(post_id)
+    await post_service.delete_post(post_id, user)
+
+@post_router.patch("/{post_id}", status_code=HTTP_200_OK)
+async def edit_post(
+    post_id: int,
+    user: Annotated[User, Depends(login_with_header)],
+    post_service: Annotated[PostService, Depends()],
+    post_request: PostPatchRequest = Depends()
+) -> PostDetailResponse:
+    updated_post = await post_service.edit_post(
+        post_id=post_id,
+        current_user=user,
+        location=post_request.location,
+        post_text=post_request.post_text
+    )
+    return PostDetailResponse.from_post(updated_post)

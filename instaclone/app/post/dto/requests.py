@@ -35,3 +35,7 @@ class PostPutRequest(BaseModel):
 class PostGetRequest(BaseModel):
     post_id: Optional[int] = None
     user_id: Optional[int] = None
+
+class PostPatchRequest(BaseModel):
+    location: Annotated[str | None, AfterValidator(skip_none(validate_location))] = None
+    post_text: Annotated[str | None, AfterValidator(skip_none(validate_text))] = None
