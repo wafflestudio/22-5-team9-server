@@ -9,7 +9,7 @@ app = FastAPI()
 app.include_router(api_router, prefix="/api")
 
 origins = [
-    "https://d3l72zsyuz0duc.cloudfront.net/",
+    "https://d3l72zsyuz0duc.cloudfront.net",
     "http://localhost:5173"
 ]
 
