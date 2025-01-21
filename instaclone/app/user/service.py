@@ -99,8 +99,8 @@ class UserService:
         if not user or user.password != password:
             raise InvalidUsernameOrPasswordError()
 
-        access_token = create_access_token(username, expires=timedelta(minutes=10))
-        refresh_token = create_refresh_token(username, expires=timedelta(hours=24))
+        access_token = create_access_token(user.username, expires=timedelta(minutes=10))
+        refresh_token = create_refresh_token(user.username, expires=timedelta(hours=24))
 
         return access_token, refresh_token
     
