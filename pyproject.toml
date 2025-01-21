@@ -19,6 +19,7 @@ alembic = "^1.14.0"
 cryptography = "^44.0.0"
 python-multipart = "^0.0.20"
 boto3 = "^1.35.92"
+websocket = "^0.2.1"
 
 
 [build-system]
