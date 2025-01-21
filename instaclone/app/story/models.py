@@ -72,8 +72,9 @@ class Highlight(Base):
     highlight_name: Mapped[String] = mapped_column(String(15), nullable=False)
     cover_image_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("media.image_id"))
     
-    story_ids: Mapped[list[Story]] = relationship("Story", secondary="highlight_stories", back_populates="highlights")
+    story_ids: Mapped[list[int]] = relationship("Story", secondary="highlight_stories", back_populates="highlights")
     media: Mapped["Medium"] = relationship("Medium", lazy="selectin")
+    subusers: Mapped[list[int]] = relationship("User", back_populates="highlights")
 
 class HighlightStories(Base):
     __tablename__ = "highlight_stories"
