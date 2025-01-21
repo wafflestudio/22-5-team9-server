@@ -3,7 +3,7 @@ from typing import List, Sequence
 from pydantic import BaseModel
 from datetime import datetime
 
-from instaclone.app.story.models import Story, Highlight, HighlightStories
+from instaclone.app.story.models import Story, Highlight, HighlightStories, HighlightSubusers
 from instaclone.app.medium.models import Medium
 from instaclone.database.connection import SESSION
 from sqlalchemy.future import select
@@ -31,6 +31,8 @@ class HighlightDetailResponse(BaseModel):
     highlight_name: str
     cover_image: str
     story_ids: Sequence[int]
+    admin_user: int
+    user_ids: Sequence[int]
 
     @staticmethod
     async def from_highlight(highlight: Highlight):
@@ -40,11 +42,18 @@ class HighlightDetailResponse(BaseModel):
         )
         story_ids = story_id_results.scalars().all()
 
+        user_id_results = await SESSION.execute(
+            select(HighlightSubusers.user_id).where(HighlightSubusers.highlight_id==highlight.highlight_id)
+        )
+        user_ids = user_id_results.scalars().all()
+
         return HighlightDetailResponse(
             highlight_id=highlight.highlight_id,
             highlight_name=str(highlight.highlight_name),
             cover_image=highlight.media.url,
-            story_ids=story_ids
+            story_ids=story_ids,
+            user_ids=user_ids,
+            admin_user=highlight.user_id
         )
     
     class Config:

@@ -76,6 +76,12 @@ class Highlight(Base):
     media: Mapped["Medium"] = relationship("Medium", lazy="selectin")
     subusers: Mapped[list[int]] = relationship("User", back_populates="highlights")
 
+class HighlightSubusers(Base):
+    __tablename__ = "highlight_subusers"
+
+    highlight_id = mapped_column(ForeignKey("highlights.highlight_id"), primary_key=True)
+    user_id = mapped_column(ForeignKey("users.user_id"), primary_key=True)
+
 class HighlightStories(Base):
     __tablename__ = "highlight_stories"
 

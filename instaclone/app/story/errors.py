@@ -38,3 +38,10 @@ class HighlightNameError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, "Highlight name already exists")
 
+class HighlightPermissionError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "Don't have permission to access highlight")
+
+class UserAddedError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "User already added to this story")

@@ -6,6 +6,7 @@ import os
 
 from instaclone.app.story.errors import FileSizeLimitError
 from instaclone.app.story.store import StoryStore
+from instaclone.app.user.store import UserStore
 from instaclone.app.user.models import User
 from instaclone.app.story.models import Story, Highlight
 from instaclone.app.medium.models import Medium
@@ -15,8 +16,9 @@ BASE_DIR = "story_uploads"
 os.makedirs(BASE_DIR, exist_ok=True)
 
 class StoryService:
-    def __init__(self, story_store: Annotated[StoryStore, Depends()]):
+    def __init__(self, story_store: Annotated[StoryStore, Depends()], user_store: Annotated[UserStore, Depends()]):
         self.story_store = story_store
+        self.user_store = user_store
 
     async def create_story(self, user: User, media: List["Medium"]) -> Story:
         story = await self.story_store.add_story(user, media)
@@ -53,6 +55,11 @@ class StoryService:
         updated_highlight: Highlight = await self.story_store.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight_id)
         return updated_highlight
     
+    async def add_user_highlight(self, user: User, user_id: int, highlight_id: int) -> Highlight:
+        add_user = self.user_store.get_user_by_id(user_id=user_id)
+            
+        return await self.story_store.add_user_highlight(user=user, user_id=user_id, highlight_id=highlight_id)
+
     async def get_highlight(self, highlight_id) -> Highlight:
         return await self.story_store.get_highlight(highlight_id=highlight_id)
 

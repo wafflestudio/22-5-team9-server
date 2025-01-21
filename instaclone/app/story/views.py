@@ -101,6 +101,16 @@ async def add_to_highlight(
     highlight = await story_service.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight_id)
     return await HighlightDetailResponse.from_highlight(highlight=highlight)
 
+@story_router.post("/highlight/add_user/{highlight_id}/{user_id}", status_code=HTTP_201_CREATED)
+async def add_user_to_highlight(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    user_id: int,
+    story_service: Annotated[StoryService, Depends()]
+):
+    highlight = await story_service.add_user_highlight(user=user, user_id=user_id, highlight_id=highlight_id)
+    return await HighlightDetailResponse.from_highlight(highlight=highlight)
+
 # # Get all highlights of a user using user id
 @story_router.get("/highlights/{user_id}", status_code=HTTP_200_OK)
 async def get_highlights(

@@ -6,9 +6,9 @@ from fastapi import HTTPException
 
 from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
-from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories
+from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories, HighlightSubusers
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -122,8 +122,11 @@ class StoryStore:
             raise HighlightNameError()
 
         highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
+
+        highlight_user: HighlightSubusers = HighlightSubusers(highlight_id=highlight.highlight_id, user=user.user_id)
         try:
             SESSION.add(highlight)
+            SESSION.add(highlight_user)
             await SESSION.commit()
         except HTTPException as e:
             await SESSION.rollback()
@@ -173,6 +176,39 @@ class StoryStore:
             await SESSION.rollback()
             raise DebugError(e.status_code, e.detail)
         return highlight
+    
+    async def add_user_highlight(
+            self,
+            user: User,
+            user_id: int,
+            highlight_id: int
+    ) -> Highlight:
+        highlight: Highlight = await self.get_highlight(highlight_id)
+
+        if highlight.user_id != user.user_id:
+            raise HighlightPermissionError()
+        
+        highlight_users = await SESSION.scalars(select(HighlightSubusers.user_id).where(HighlightSubusers.highlight_id==highlight_id))
+        highlight_users = highlight_users.all()
+
+        # if user.user_id not in highlight_users:
+        #     raise HighlightPermissionError()      # Give permission to add users to non-admin
+
+        if user_id in highlight_users:
+            raise UserAddedError()
+        
+        highlight_user = HighlightSubusers(highlight_id=highlight_id, user_id=user_id)
+
+        try:
+            SESSION.add(highlight_user)
+            await SESSION.commit()
+            await SESSION.refresh(highlight)
+        except HTTPException as e:
+            await SESSION.rollback()
+            raise DebugError(e.status_code, e.detail)
+        
+        return highlight
+
     
     async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
         query = select(Highlight).where(Highlight.user_id == user_id)
