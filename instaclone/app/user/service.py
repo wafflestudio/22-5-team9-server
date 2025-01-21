@@ -99,8 +99,8 @@ class UserService:
         if not user or user.password != password:
             raise InvalidUsernameOrPasswordError()
 
-        access_token = create_access_token(username, expires=timedelta(minutes=10))
-        refresh_token = create_refresh_token(username, expires=timedelta(hours=24))
+        access_token = create_access_token(user.username, expires=timedelta(minutes=10))
+        refresh_token = create_refresh_token(user.username, expires=timedelta(hours=24))
 
         return access_token, refresh_token
     
@@ -121,3 +121,6 @@ class UserService:
     async def refresh_token(self, refresh_token: str) -> tuple[str, str]:
         new_access_token, new_refresh_token = await refresh_access_token(refresh_token, access_expires=timedelta(minutes=10), refresh_expires=timedelta(hours=24))
         return new_access_token, new_refresh_token
+    
+    async def search_users(self, query: str) -> list[User]:
+        return await self.user_store.search_users(query)
