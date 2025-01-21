@@ -86,6 +86,7 @@ async def add_new_highlight(
         story = await story_service.get_story_no_validation(story_id=story_id, current_user=user)
         cover_image = story.media[0]
     highlight = await story_service.create_highlight(user=user, highlight_cover=cover_image, highlight_name=highlight_create_request.highlight_name)
+    highlight = await story_service.add_init_user_highlight(user=user, highlight=highlight)
     highlight = await story_service.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight.highlight_id)
     response = await HighlightDetailResponse.from_highlight(highlight=highlight)
     return response

@@ -55,6 +55,9 @@ class StoryService:
         updated_highlight: Highlight = await self.story_store.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight_id)
         return updated_highlight
     
+    async def add_init_user_highlight(self, user: User, highlight: Highlight) -> Highlight:
+        return await self.story_store.add_init_user_highlight(user=user, highlight=highlight)
+    
     async def add_user_highlight(self, user: User, user_id: int, highlight_id: int) -> Highlight:
         add_user = self.user_store.get_user_by_id(user_id=user_id)
             
@@ -63,7 +66,7 @@ class StoryService:
     async def get_highlight(self, highlight_id) -> Highlight:
         return await self.story_store.get_highlight(highlight_id=highlight_id)
 
-    async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
+    async def get_highlight_list(self, user_id: int) -> list["Highlight"]:
         return await self.story_store.get_highlight_list(user_id=user_id)
 
     async def delete_highlight(

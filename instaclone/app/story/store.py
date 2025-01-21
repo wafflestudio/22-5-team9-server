@@ -123,10 +123,8 @@ class StoryStore:
 
         highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
 
-        highlight_user: HighlightSubusers = HighlightSubusers(highlight_id=highlight.highlight_id, user=user.user_id)
         try:
             SESSION.add(highlight)
-            SESSION.add(highlight_user)
             await SESSION.commit()
         except HTTPException as e:
             await SESSION.rollback()
@@ -177,6 +175,23 @@ class StoryStore:
             raise DebugError(e.status_code, e.detail)
         return highlight
     
+    async def add_init_user_highlight(
+            self,
+            user: User,
+            highlight: Highlight
+    ):
+        highlight_user = HighlightSubusers(highlight_id=highlight.highlight_id, user_id=user.user_id)
+
+        try:
+            SESSION.add(highlight_user)
+            await SESSION.commit()
+            await SESSION.refresh(highlight)
+        except HTTPException as e:
+            await SESSION.rollback()
+            raise DebugError(e.status_code, e.detail)
+        
+        return highlight
+    
     async def add_user_highlight(
             self,
             user: User,
@@ -210,10 +225,16 @@ class StoryStore:
         return highlight
 
     
-    async def get_highlight_list(self, user_id: int) -> Sequence["Highlight"]:
-        query = select(Highlight).where(Highlight.user_id == user_id)
-        result = await SESSION.scalars(query)
-        highlights = result.all()
+    async def get_highlight_list(self, user_id: int) -> list["Highlight"]:
+        highlight_id_results = await SESSION.execute(
+            select(HighlightSubusers.highlight_id).where(HighlightSubusers.user_id==user_id)
+        )
+        highlight_ids = highlight_id_results.scalars().all()
+
+        highlights = []
+
+        for highlight_id in highlight_ids:
+            highlights.append(await self.get_highlight(highlight_id=highlight_id))
 
         return highlights
     
