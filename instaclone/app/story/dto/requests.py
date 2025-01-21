@@ -3,6 +3,7 @@ from pydantic import BaseModel, AfterValidator
 from fastapi import UploadFile, File
 from functools import wraps
 from instaclone.common.errors import InvalidFieldFormatError
+from starlette import datastructures
 
 T = TypeVar("T")
 def skip_none(validator: Callable[[T], T]) -> Callable[[T | None], T | None]:
@@ -27,14 +28,15 @@ def validate_highlight_name(name):
 
 def validate_cover_image(cover_image):
     print(type(cover_image))
-    if type(cover_image) == str:
+    if isinstance(cover_image, str):
         if cover_image != "":
             raise InvalidFieldFormatError("Invalid image format")
-    elif type(cover_image) != File:
+    elif not isinstance(cover_image, datastructures.UploadFile):
         raise InvalidFieldFormatError("Invalid image format")
     else:
         valid_extensions = (".jpg", ".jpeg", ".png", ".gif")
-        cimg_str = str(cover_image)
+        cimg_str = str(cover_image.filename)
+        print(cimg_str)
         if not cimg_str.lower().endswith(valid_extensions):
             raise InvalidFieldFormatError("Cover image must be a URL to a valid image file (.jpg, .png, .gif, etc.).")
 

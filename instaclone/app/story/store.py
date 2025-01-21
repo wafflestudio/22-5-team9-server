@@ -8,7 +8,7 @@ from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
 from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -95,7 +95,7 @@ class StoryStore:
             raise StoryPermissionError()
         
         delete_query = delete(Story).where(Story.story_id == story_id)
-        await self.clean_up(story_id=story_id)
+        await self.clean_up(user=user, story_id=story_id)
         await SESSION.execute(delete(Medium).where(Medium.story_id == story_id))
         await SESSION.execute(delete_query)
         await SESSION.commit()
@@ -113,9 +113,17 @@ class StoryStore:
         else:
             user = user_in_session
 
+        highlight_names = await SESSION.execute(
+            select(Highlight.highlight_name).where(Highlight.user_id==user.user_id)
+        )
+        highlight_names = highlight_names.scalars().all()
+
+        if highlight_name in highlight_names:
+            raise HighlightNameError()
+
         highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
-        SESSION.add(highlight)
         try:
+            SESSION.add(highlight)
             await SESSION.commit()
         except HTTPException as e:
             await SESSION.rollback()
@@ -129,6 +137,9 @@ class StoryStore:
             highlight_id: int
     ) -> Highlight:
         story : Story = await self.get_story_by_id(story_id)
+        
+        if not story:
+            raise DebugError(HTTPException, "Story Invalid")
 
         highlight: Highlight | None = (
             await SESSION.execute(
@@ -141,13 +152,19 @@ class StoryStore:
         if story.user_id != user.user_id or highlight.user_id != user.user_id:
             raise StoryPermissionError()
         
+        story_ids = await SESSION.execute(
+            select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight_id)
+        )
+        story_ids = story_ids.scalars().all()
+        
+        print(story_ids)
+        if story_id in story_ids:
+            raise StoryInHighlightsError()
+        
         highlight_story: HighlightStories = HighlightStories(
             highlight_id=highlight.highlight_id, story_id=story.story_id
         )
         SESSION.add(highlight_story)
-
-        if not story:
-            raise DebugError(HTTPException, "Story Invalid")
 
         try:
             await SESSION.commit()
@@ -208,48 +225,44 @@ class StoryStore:
         if highlight.user_id != user.user_id:
             raise StoryPermissionError()
         story_id_results = await SESSION.execute(
-            select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight.highlight_id, HighlightStories.story_id==story_id)
+            select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight.highlight_id)
         )
-        story = story_id_results.scalar()
+        story_ids = story_id_results.scalars().all()
+
+        story: Story = await self.get_story_by_id(story_id)
         
-        if not story:
+        if story_id not in story_ids:
             raise StoryNotExistsError()
 
         try:
+            if highlight.media in story.media and len(story_ids) > 1:
+                i = 0
+                while story_ids[i] == story_id:
+                    i += 1
+                new_cover_story: Story = await self.get_story_by_id(story_ids[i])
+                highlight.media = new_cover_story.media[0]
             await SESSION.execute(
                 delete(HighlightStories).where(HighlightStories.story_id==story_id, HighlightStories.highlight_id==highlight_id)
             )
+            if len(story_ids) == 1:
+                print("Length of stories in highlight = 1!")
+                await SESSION.execute(
+                    delete(Highlight).where(Highlight.highlight_id==highlight_id)
+                )
             await SESSION.commit()
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Story could not be removed from highlight")
         
     async def clean_up(self,
+                        user: User,
                         story_id: int):
         highlight_ids = await SESSION.execute(
             select(HighlightStories.highlight_id).where(HighlightStories.story_id==story_id)
         )
         highlight_ids = highlight_ids.scalars().all()
-        await SESSION.execute(
-            delete(HighlightStories).where(HighlightStories.story_id==story_id)
-        )
         for highlight_id in highlight_ids:
-            story_id_results = await SESSION.execute(
-                select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight_id)
-            )
-            story_ids: Sequence[int] = story_id_results.scalars().all()
-            list_story_ids = list(story_ids)
-            if story_id in list_story_ids:
-                list_story_ids = list_story_ids.remove(story_id)
-            if list_story_ids == []:
-                await SESSION.execute(
-                    delete(Highlight).where(Highlight.highlight_id==highlight_id)
-                )
-        try:
-            await SESSION.commit()
-        except Exception as e:
-            await SESSION.rollback()
-            raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Clean up failed")
+            await self.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
 
     async def record_story_view(
         self,

@@ -29,3 +29,12 @@ class HighlightDNEError(InstacloneHttpException):
 class StoryViewPermissionError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_401_UNAUTHORIZED, "Don't have permission to view story viewers")  
+
+class StoryInHighlightsError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, "Story already added to highlight")
+
+class HighlightNameError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, "Highlight name already exists")
+

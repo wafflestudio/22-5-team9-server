@@ -29,6 +29,10 @@ class StoryService:
                 await self.story_store.record_story_view(story_id, current_user)
         return story
     
+    async def get_story_no_validation(self, story_id: int, current_user: User) -> Story:
+        story = await self.story_store.get_story_by_id(story_id=story_id)
+        return story
+
     async def get_story_list(self, user_id: int) -> Sequence["Story"]:
         user = await self.story_store.get_user_from_id(user_id)
         story_list = await self.story_store.get_story_list(user)

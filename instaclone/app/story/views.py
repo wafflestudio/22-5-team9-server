@@ -1,7 +1,8 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, UploadFile, File
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from pydantic import BaseModel
+from starlette import datastructures
 
 from instaclone.app.user.views import login_with_header
 from instaclone.app.user.models import User
@@ -79,10 +80,10 @@ async def add_new_highlight(
     medium_service: Annotated[MediumService, Depends()],
     highlight_create_request: HighlightCreateRequest = Depends(),
 ) -> HighlightDetailResponse:
-    if type(highlight_create_request.cover_image) == UploadFile:
+    if type(highlight_create_request.cover_image) == datastructures.UploadFile:
         cover_image = await medium_service.create_medium(highlight_create_request.cover_image)
     else:
-        story = await story_service.get_story(story_id=story_id)
+        story = await story_service.get_story_no_validation(story_id=story_id, current_user=user)
         cover_image = story.media[0]
     highlight = await story_service.create_highlight(user=user, highlight_cover=cover_image, highlight_name=highlight_create_request.highlight_name)
     highlight = await story_service.add_story_highlight(user=user, story_id=story_id, highlight_id=highlight.highlight_id)
@@ -117,7 +118,7 @@ async def get_highlight(
 ) -> HighlightDetailResponse:
     return await HighlightDetailResponse.from_highlight(await story_service.get_highlight(highlight_id=highlight_id))
 
-@story_router.delete("/highlight/{highlight_id}")
+@story_router.delete("/highlight/{highlight_id}", status_code=HTTP_204_NO_CONTENT)
 async def delete_highlight(
     user: Annotated[User, Depends(login_with_header)],
     highlight_id: int,
