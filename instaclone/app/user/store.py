@@ -75,7 +75,7 @@ class UserStore:
             raise PhoneNumberAlreadyExistsError()
         
         if image_path is None:
-            image_path = "DEFAULT_PATH"
+            image_path = "media_uploads/default.jpg"
 
         user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image=image_path, gender=gender, birthday=birthday, introduce=introduce, website=website)
         SESSION.add(user)
