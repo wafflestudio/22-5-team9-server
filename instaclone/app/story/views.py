@@ -158,7 +158,7 @@ async def remove_user_from_highlight(
     await story_service.remove_highlight_user(user=user, highlight_id=highlight_id, user_id=user_id)
     return "Success"
 
-@story_router.patch("/highlight/change_admin/{user_id}", status_code=HTTP_200_OK)
+@story_router.patch("/highlight/change_admin/{highlight_id}/{user_id}", status_code=HTTP_200_OK)
 async def change_highlight_admin(
     user: Annotated[User, Depends(login_with_header)],
     highlight_id: int,
