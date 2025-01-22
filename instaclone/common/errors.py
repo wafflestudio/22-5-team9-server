@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 
 
 class InstacloneHttpException(HTTPException):
@@ -10,7 +10,6 @@ class InstacloneHttpException(HTTPException):
 class InvalidFieldFormatError(InstacloneHttpException):
     def __init__(self, detail: str | None = None) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, f"Invalid field format. {detail}")
-
 
 class MissingRequiredFieldError(InstacloneHttpException):
     def __init__(self) -> None:
@@ -31,3 +30,9 @@ class BlockedTokenError(HTTPException):
 class DebugError(InstacloneHttpException):
     def __init__(self, status_code: int, detail: str) -> None:
         super().__init__(status_code=status_code, detail=detail)
+
+class CommentServerError(HTTPException):
+    def __init__(self, message: str, original_exception=None) -> None:
+        # HTTPException 초기화
+        super().__init__(HTTP_500_INTERNAL_SERVER_ERROR, message)
+        self.original_exception = original_exception
