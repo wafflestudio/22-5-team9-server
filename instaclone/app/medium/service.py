@@ -17,7 +17,7 @@ BASE_DIR = "media_uploads"
 class MediumService:
     def __init__(self, medium_store: Annotated[MediumStore, Depends()]) -> None:
         self.medium_store = medium_store
-        self.upload_folder = "Post uploads"  
+        self.upload_folder = "media_uploads"  
 
         if not os.path.exists(self.upload_folder):
             os.makedirs(self.upload_folder)
