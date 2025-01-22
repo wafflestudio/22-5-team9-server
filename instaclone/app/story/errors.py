@@ -49,3 +49,7 @@ class UserAddedError(InstacloneHttpException):
 class CannotRemoveError(InstacloneHttpException):
     def __init__(self, text: str) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, f"Cannot remove user from highlight: {text}")
+
+class CannotChangeAdminError(InstacloneHttpException):
+    def __init__(self, text: str) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, f"Cannot change highlight admin: {text}")

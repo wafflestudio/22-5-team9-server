@@ -8,7 +8,7 @@ from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
 from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories, HighlightSubusers
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError, CannotChangeAdminError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -386,6 +386,40 @@ class StoryStore:
             await SESSION.refresh(highlight)
         except HTTPException as e:
             raise DebugError(e.status_code, e.detail)
+        
+    async def change_highlight_admin(
+            self,
+            user: User,
+            highlight_id: int,
+            user_id: int
+    ):
+        highlight : Highlight = await self.get_highlight(highlight_id=highlight_id)
+
+        if user.user_id != highlight.user_id:
+            raise CannotChangeAdminError("requires admin permissions")
+        
+        if user.user_id == user_id:
+            raise CannotChangeAdminError("user already admin")
+        
+        users = await SESSION.execute(
+            select(HighlightSubusers.user_id).where(HighlightSubusers.highlight_id==highlight_id)
+        )
+
+        users = users.scalars().all()
+
+        print(users)
+
+        if user_id not in users:
+            raise CannotChangeAdminError("add user to highlight first")
+        
+        try:
+            highlight.user_id = user_id
+            await SESSION.commit()
+            await SESSION.refresh(highlight)
+        except HTTPException as e:
+            raise DebugError(e.status_code, e.detail)
+        
+        return highlight
         
     async def clean_up(self,
                         user: User,

@@ -158,7 +158,14 @@ async def remove_user_from_highlight(
     await story_service.remove_highlight_user(user=user, highlight_id=highlight_id, user_id=user_id)
     return "Success"
 
-# Get users of a highlight
+@story_router.patch("/highlight/change_admin/{user_id}", status_code=HTTP_200_OK)
+async def change_highlight_admin(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    user_id: int,
+    story_service: Annotated[StoryService, Depends()]
+):
+    return HighlightDetailResponse.from_highlight(await story_service.change_highlight_admin(user=user, highlight_id=highlight_id, user_id=user_id))
 
 class StoryViewerResponse(BaseModel):
     user_id: int
