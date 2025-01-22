@@ -69,7 +69,7 @@ class Highlight(Base):
     highlight_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     # user_id
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
-    highlight_name: Mapped[String] = mapped_column(String(15), nullable=False)
+    highlight_name: Mapped[str] = mapped_column(String(15), nullable=False)
     cover_image_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("media.image_id"))
     
     story_ids: Mapped[list[int]] = relationship("Story", secondary="highlight_stories", back_populates="highlights")

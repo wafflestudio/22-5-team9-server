@@ -10,6 +10,10 @@ class StoryPermissionError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_401_UNAUTHORIZED, "Don't have permission to delete story")
 
+class StoryPermissionAccessError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_401_UNAUTHORIZED, "Don't have access to story")
+
 class StoryNotExistsError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_404_NOT_FOUND, "Story does not exist")
@@ -53,3 +57,8 @@ class CannotRemoveError(InstacloneHttpException):
 class CannotChangeAdminError(InstacloneHttpException):
     def __init__(self, text: str) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, f"Cannot change highlight admin: {text}")
+
+class CannotChangeHighlightNameError(InstacloneHttpException):
+    def __init__(self, text: str) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, f"Cannot change highlight name: {text}")
+        

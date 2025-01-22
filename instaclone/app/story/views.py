@@ -168,6 +168,16 @@ async def change_highlight_admin(
     highlight = await story_service.change_highlight_admin(user=user, highlight_id=highlight_id, user_id=user_id)
     return await HighlightDetailResponse.from_highlight(highlight)
 
+@story_router.patch("/highlight/change_name/{highlight_id}", status_code=HTTP_200_OK)
+async def change_highlight_name(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    highlight_name: str,
+    story_service: Annotated[StoryService, Depends()]
+):
+    highlight = await story_service.change_highlight_name(user=user, highlight_id=highlight_id, highlight_name=highlight_name)
+    return await HighlightDetailResponse.from_highlight(highlight)
+
 class StoryViewerResponse(BaseModel):
     user_id: int
     username: str

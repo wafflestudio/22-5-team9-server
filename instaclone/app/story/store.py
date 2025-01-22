@@ -8,7 +8,7 @@ from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
 from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories, HighlightSubusers
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError, CannotChangeAdminError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError, CannotChangeAdminError, CannotChangeHighlightNameError, StoryPermissionAccessError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -151,7 +151,7 @@ class StoryStore:
         if not highlight:
             raise HighlightDNEError()
         if story.user_id != user.user_id or highlight.user_id != user.user_id:
-            raise StoryPermissionError()
+            raise StoryPermissionAccessError()
         
         story_ids = await SESSION.execute(
             select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight_id)
@@ -256,7 +256,7 @@ class StoryStore:
         if not highlight:
             raise HighlightDNEError()
         if highlight.user_id != user.user_id:
-            raise StoryPermissionError()
+            raise HighlightPermissionError()
         
         try:
             await SESSION.execute(
@@ -299,7 +299,7 @@ class StoryStore:
         if story.user_id != user.user_id:
             print(story.user_id)
             print(user.user_id)
-            raise StoryPermissionError()
+            raise StoryPermissionAccessError()
         
         # Try delete
         try:
@@ -421,6 +421,35 @@ class StoryStore:
             raise DebugError(e.status_code, e.detail)
         
         return highlight
+    
+    async def change_highlight_name(
+            self,
+            user: User,
+            highlight_id: int,
+            highlight_name: str
+    ):
+        highlight : Highlight = await self.get_highlight(highlight_id=highlight_id)
+
+        if user.user_id != highlight.user_id:
+            raise CannotChangeHighlightNameError("requires admin permissions")
+        
+        highlight_names = await SESSION.execute(
+            select(Highlight.highlight_name).where(Highlight.user_id==user.user_id)
+        )
+        highlight_names = highlight_names.scalars().all()
+
+        if highlight_name in highlight_names:
+            raise HighlightNameError()
+        
+        try:
+            highlight.highlight_name = highlight_name
+            await SESSION.commit()
+            await SESSION.refresh(highlight)
+        except HTTPException as e:
+            raise DebugError(e.status_code, e.detail)
+        
+        return highlight
+
         
     async def clean_up(self,
                         user: User,
