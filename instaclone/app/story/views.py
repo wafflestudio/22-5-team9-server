@@ -148,6 +148,18 @@ async def unsave_story(
     await story_service.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
     return "Success"
 
+@story_router.delete("/highlightuser/{highlight_id}/{user_id}")
+async def remove_user_from_highlight(
+    user: Annotated[User, Depends(login_with_header)],
+    highlight_id: int,
+    user_id: int,
+    story_service: Annotated[StoryService, Depends()]
+):
+    await story_service.remove_highlight_user(user=user, highlight_id=highlight_id, user_id=user_id)
+    return "Success"
+
+# Get users of a highlight
+
 class StoryViewerResponse(BaseModel):
     user_id: int
     username: str

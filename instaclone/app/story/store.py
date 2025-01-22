@@ -8,7 +8,7 @@ from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
 from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories, HighlightSubusers
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -276,22 +276,31 @@ class StoryStore:
             highlight_id: int,
             story_id: int
     ):
+        # Check Highlight exists
         highlight: Highlight = await self.get_highlight(highlight_id=highlight_id)
         if not highlight:
             raise HighlightDNEError()
-        if highlight.user_id != user.user_id:
-            raise StoryPermissionError()
+        
+        # Check story in highlights
         story_id_results = await SESSION.execute(
             select(HighlightStories.story_id).where(HighlightStories.highlight_id==highlight.highlight_id)
         )
         story_ids = story_id_results.scalars().all()
 
-        story: Story = await self.get_story_by_id(story_id)
-        
         if story_id not in story_ids:
             raise StoryNotExistsError()
-
+        
+        # Check permission
+        story: Story = await self.get_story_by_id(story_id)
+        
+        if story.user_id != user.user_id:
+            print(story.user_id)
+            print(user.user_id)
+            raise StoryPermissionError()
+        
+        # Try delete
         try:
+            # Deletion handling for cover image
             if highlight.media in story.media and len(story_ids) > 1:
                 i = 0
                 while story_ids[i] == story_id:
@@ -301,8 +310,10 @@ class StoryStore:
             await SESSION.execute(
                 delete(HighlightStories).where(HighlightStories.story_id==story_id, HighlightStories.highlight_id==highlight_id)
             )
+            # Delete highlight if there are no stories
             if len(story_ids) == 1:
-                print("Length of stories in highlight = 1!")
+                # Remove all users from highlight before delete
+                await self.remove_all_highlight_users(highlight=highlight)
                 await SESSION.execute(
                     delete(Highlight).where(Highlight.highlight_id==highlight_id)
                 )
@@ -310,6 +321,71 @@ class StoryStore:
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Story could not be removed from highlight")
+    
+    async def remove_all_highlight_users(
+            self,
+            highlight: Highlight
+    ):
+        try:
+            await SESSION.execute(
+                delete(HighlightSubusers).where(HighlightSubusers.highlight_id==highlight.highlight_id)
+            )
+            await SESSION.commit()
+        except HTTPException as e:
+            await SESSION.rollback()
+            raise DebugError(e.status_code, e.detail)
+        
+    async def remove_highlight_user(
+            self,
+            user: User,
+            highlight_id: int,
+            user_id: int
+    ):
+        highlight : Highlight = await self.get_highlight(highlight_id=highlight_id)
+
+        subuser_results = await SESSION.execute(
+            select(HighlightSubusers.user_id).where(HighlightSubusers.highlight_id==highlight_id)
+        )
+
+        subusers = subuser_results.scalars().all()
+
+        if highlight.user_id != user.user_id and user.user_id != user_id:
+            raise CannotRemoveError("Removing others is only permitted for admin")
+        
+        if user_id not in subusers:
+            raise CannotRemoveError("User not added to highlight")
+        
+        if user_id == highlight.user_id:
+            raise CannotRemoveError("Cannot remove admin from highlight.")
+        
+        stories = await SESSION.execute(
+            select(HighlightStories.story_id)
+            .join(Story, Story.story_id==HighlightStories.story_id)
+            .join(HighlightSubusers, HighlightStories.highlight_id==HighlightSubusers.highlight_id)
+            .where(
+                   HighlightStories.highlight_id==highlight_id,
+                   HighlightSubusers.user_id==user_id,
+                   HighlightSubusers.user_id==Story.user_id,
+                   Story.user_id==user_id)
+        )
+        stories = stories.scalars().all()
+
+        print(stories)
+
+        try:
+            for story in stories:
+                if user.user_id != user_id:
+                    tmp_user : User = await self.get_user_from_id(user_id)
+                    print(tmp_user.user_id)
+                await self.unsave_story(user=tmp_user, highlight_id=highlight_id, story_id=story)
+            
+            await SESSION.execute(
+                delete(HighlightSubusers).where(HighlightSubusers.user_id==user_id)
+            )
+            await SESSION.commit()
+            await SESSION.refresh(highlight)
+        except HTTPException as e:
+            raise DebugError(e.status_code, e.detail)
         
     async def clean_up(self,
                         user: User,

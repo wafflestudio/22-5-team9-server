@@ -59,7 +59,7 @@ class StoryService:
         return await self.story_store.add_init_user_highlight(user=user, highlight=highlight)
     
     async def add_user_highlight(self, user: User, user_id: int, highlight_id: int) -> Highlight:
-        add_user = self.user_store.get_user_by_id(user_id=user_id)
+        add_user = await self.user_store.get_user_by_id(user_id=user_id)
             
         return await self.story_store.add_user_highlight(user=user, user_id=user_id, highlight_id=highlight_id)
 
@@ -84,5 +84,13 @@ class StoryService:
     ):
         await self.story_store.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
         
+    async def remove_highlight_user(
+            self,
+            user: User,
+            highlight_id: int,
+            user_id: int
+    ):
+        await self.story_store.remove_highlight_user(user=user, highlight_id=highlight_id, user_id=user_id)
+
     async def get_story_viewers(self, story_id: int, owner: User) -> List[User]:
         return await self.story_store.get_story_viewers(story_id, owner)

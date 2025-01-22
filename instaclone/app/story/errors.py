@@ -44,4 +44,8 @@ class HighlightPermissionError(InstacloneHttpException):
 
 class UserAddedError(InstacloneHttpException):
     def __init__(self) -> None:
-        super().__init__(HTTP_401_UNAUTHORIZED, "User already added to this story")
+        super().__init__(HTTP_400_BAD_REQUEST, "User already added to this highlight")
+
+class CannotRemoveError(InstacloneHttpException):
+    def __init__(self, text: str) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, f"Cannot remove user from highlight: {text}")
