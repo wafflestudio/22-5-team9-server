@@ -433,8 +433,13 @@ class StoryStore:
         if user.user_id != highlight.user_id:
             raise CannotChangeHighlightNameError("requires admin permissions")
         
+        user_ids = await SESSION.execute(
+            select(HighlightSubusers.user_id).where(HighlightSubusers.highlight_id==highlight_id)
+        )
+        user_ids = user_ids.scalars().all()
+        
         highlight_names = await SESSION.execute(
-            select(Highlight.highlight_name).where(Highlight.user_id==user.user_id)
+            select(Highlight.highlight_name).where(Highlight.user_id.in_(user_ids))
         )
         highlight_names = highlight_names.scalars().all()
 
