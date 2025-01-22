@@ -3,12 +3,15 @@ from uuid import uuid4
 from sqlalchemy.sql import select
 from instaclone.database.connection import SESSION
 from instaclone.app.user.models import BlockedToken
+from fastapi import WebSocket
 
+from instaclone.app.user.models import User
 from instaclone.common.errors import (
     ExpiredSignatureError,
     InvalidTokenError,
     BlockedTokenError
 )
+from instaclone.app.dm.errors import MissingHeaderError, InvalidHeaderFormatError, InvalidTokenError
 
 import jwt
 
@@ -120,3 +123,19 @@ async def is_token_blocked(jti: str) -> bool:
         return True
     else:
         return False
+    
+async def ws_login_with_header(websocket: WebSocket) -> User:
+    token_prefix = "Bearer "
+    authorization = websocket.headers.get("authorization")
+    if not authorization:
+        raise MissingHeaderError()
+    
+    if not authorization.startswith(token_prefix):
+        raise InvalidHeaderFormatError()
+    
+    token = authorization[len(token_prefix):]
+    username = validate_access_token(token)
+    user = await SESSION.scalar(select(User).where(User.username == username))
+    if not user:
+        raise InvalidTokenError()
+    return user

@@ -1,5 +1,6 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends
+import asyncio
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, Query
 
 from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest, GenderEnum
 from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse, RefreshTokenResponse
@@ -30,6 +31,21 @@ async def login_with_header(
 @user_router.get("/profile", status_code=HTTP_200_OK)
 async def me(user: Annotated[User, Depends(login_with_header)]) -> UserDetailResponse:
     return await UserDetailResponse.from_user(user)
+
+@user_router.get("/search", response_model=List[UserDetailResponse])
+async def search_users(
+    query: str = Query(..., min_length=1),
+    user_service: UserService = Depends()
+) -> List[UserDetailResponse]:
+    #users = await user_service.search_users(query)
+    #response_list = []
+    #for user in users:
+    #    response_list.append(await UserDetailResponse.from_user(user))
+    #return response_list
+    users = await user_service.search_users(query)
+    coroutines = [UserDetailResponse.from_user(u) for u in users]
+    results = await asyncio.gather(*coroutines)
+    return results
 
 @user_router.get("/{username}", status_code=HTTP_200_OK)
 async def view_profile(

@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 
 
 class InstacloneHttpException(HTTPException):
@@ -27,6 +27,12 @@ class InvalidTokenError(HTTPException):
 class BlockedTokenError(HTTPException):
     def __init__(self) -> None:
         super().__init__(HTTP_401_UNAUTHORIZED, "The token has been blocked.")
+
+class CommentServerError(HTTPException):
+    def __init__(self, message: str, original_exception=None) -> None:
+        # HTTPException 초기화
+        super().__init__(HTTP_500_INTERNAL_SERVER_ERROR, message)
+        self.original_exception = original_exception
 
 class DebugError(InstacloneHttpException):
     def __init__(self, status_code: int, detail: str) -> None:
