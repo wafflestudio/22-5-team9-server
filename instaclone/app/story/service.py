@@ -97,8 +97,9 @@ class StoryService:
             user: User,
             highlight_id: int,
             user_id: int
-    ):
-        return await self.story_store.change_highlight_admin(user=user, highlight_id=highlight_id, user_id=user_id)
+    ) -> Highlight:
+        highlight = await self.story_store.change_highlight_admin(user=user, highlight_id=highlight_id, user_id=user_id)
+        return highlight
 
     async def get_story_viewers(self, story_id: int, owner: User) -> List[User]:
         return await self.story_store.get_story_viewers(story_id, owner)

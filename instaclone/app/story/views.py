@@ -165,7 +165,8 @@ async def change_highlight_admin(
     user_id: int,
     story_service: Annotated[StoryService, Depends()]
 ):
-    return HighlightDetailResponse.from_highlight(await story_service.change_highlight_admin(user=user, highlight_id=highlight_id, user_id=user_id))
+    highlight = await story_service.change_highlight_admin(user=user, highlight_id=highlight_id, user_id=user_id)
+    return await HighlightDetailResponse.from_highlight(highlight)
 
 class StoryViewerResponse(BaseModel):
     user_id: int

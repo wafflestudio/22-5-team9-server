@@ -263,6 +263,9 @@ class StoryStore:
                 delete(HighlightStories).where(HighlightStories.highlight_id==highlight_id)
             )
             await SESSION.execute(
+                delete(HighlightSubusers).where(HighlightSubusers.highlight_id==highlight_id)
+            )
+            await SESSION.execute(
                 delete(Highlight).where(Highlight.highlight_id==highlight_id)
             )
             await SESSION.commit()
@@ -406,8 +409,6 @@ class StoryStore:
         )
 
         users = users.scalars().all()
-
-        print(users)
 
         if user_id not in users:
             raise CannotChangeAdminError("add user to highlight first")
