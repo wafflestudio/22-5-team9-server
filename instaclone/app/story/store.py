@@ -150,7 +150,16 @@ class StoryStore:
 
         if not highlight:
             raise HighlightDNEError()
-        if story.user_id != user.user_id or highlight.user_id != user.user_id:
+        
+        highlight_users = await SESSION.execute(
+            select(HighlightSubusers.user_id).where(HighlightSubusers.highlight_id==highlight.highlight_id)
+        )
+        highlight_users = highlight_users.scalars().all()
+
+        if user.user_id not in highlight_users:
+            raise HighlightPermissionError()
+
+        if story.user_id != user.user_id:
             raise StoryPermissionAccessError()
         
         story_ids = await SESSION.execute(
@@ -158,7 +167,6 @@ class StoryStore:
         )
         story_ids = story_ids.scalars().all()
         
-        print(story_ids)
         if story_id in story_ids:
             raise StoryInHighlightsError()
         
