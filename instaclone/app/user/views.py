@@ -52,8 +52,11 @@ async def view_profile(
     username: str,
     user_service: Annotated[UserService, Depends()]
     ) -> UserDetailResponse:
-    user = await user_service.get_user_by_username(username)
-    if user == None:
+    if username.isdigit():
+        user = await user_service.get_user_by_id(int(username))
+    else:
+        user = await user_service.get_user_by_username(username)
+    if user is None:
         raise UserDoesNotExistError()
     return await UserDetailResponse.from_user(user)
 

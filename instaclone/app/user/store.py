@@ -25,7 +25,7 @@ class UserStore:
         if not user:
             raise UserDoesNotExistError()
         return user
-    
+
     async def edit_user(
         self, 
         user: User,

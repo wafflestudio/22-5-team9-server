@@ -28,7 +28,7 @@ async def create_post(
         post_text=post_request.post_text,
         media=media
     )
-    return PostDetailResponse.from_post(post)
+    return await PostDetailResponse.from_post(post)
 
 @post_router.get("/explore", status_code=HTTP_200_OK)
 async def explore_tab(
@@ -36,7 +36,7 @@ async def explore_tab(
 ):
     posts = await post_service.get_all_posts()
     return [
-        PostDetailResponse.from_post(post)
+        await PostDetailResponse.from_post(post)
         for post in posts
     ]
 
@@ -46,7 +46,7 @@ async def get_post(
     post_service: Annotated[PostService, Depends()],
 ) -> PostDetailResponse:
     post = await post_service.get_post(post_id)
-    return PostDetailResponse.from_post(post)
+    return await PostDetailResponse.from_post(post)
 
 
 
@@ -71,7 +71,7 @@ async def get_following_posts(
     follow_list = await follow_service.get_following_list(user)
     posts = await post_service.get_following_posts(follow_list=follow_list)
     return [
-        PostDetailResponse.from_post(post)
+        await PostDetailResponse.from_post(post)
         for post in posts
     ]
 
@@ -81,7 +81,7 @@ async def get_user_posts_by_id(
 ) -> list[PostDetailResponse]:
     posts = await post_service.get_user_posts(user_id)
     return [
-        PostDetailResponse.from_post(post)
+        await PostDetailResponse.from_post(post)
         for post in posts
     ]
 
@@ -96,7 +96,7 @@ async def get_user_posts_by_username(
         raise UserDoesNotExistError
     posts = await post_service.get_user_posts(user.user_id)
     return [
-        PostDetailResponse.from_post(post)
+        await PostDetailResponse.from_post(post)
         for post in posts
     ]
 
@@ -122,4 +122,4 @@ async def edit_post(
         location=post_request.location,
         post_text=post_request.post_text
     )
-    return PostDetailResponse.from_post(updated_post)
+    return await PostDetailResponse.from_post(updated_post)
