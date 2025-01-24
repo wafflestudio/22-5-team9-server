@@ -43,6 +43,9 @@ class UserService:
     async def get_user_by_phone_number(self, phone_number: str) -> User | None:
         return await self.user_store.get_user_by_phone_number(phone_number)
     
+    async def get_user_by_id(self, user_id: int) -> User | None:
+        return await self.user_store.get_user_by_id(user_id)
+    
     def validate_access_token(self, token: str) -> str:
         """
         access_token을 검증하고, username을 반환합니다.

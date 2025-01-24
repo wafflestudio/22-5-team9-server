@@ -20,6 +20,9 @@ class UserStore:
     async def get_user_by_phone_number(self, phone_number: str) -> User | None:
         return await SESSION.scalar(select(User).where(User.phone_number == phone_number))
     
+    async def get_user_by_id(self, user_id: int) -> User | None:
+        return await SESSION.scalar(select(User).where(User.user_id == user_id))
+    
     async def edit_user(
         self, 
         user: User,
