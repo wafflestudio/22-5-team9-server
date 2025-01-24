@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from datetime import datetime, timedelta
-from sqlalchemy import BigInteger, DATETIME, ForeignKey, event
+from sqlalchemy import BigInteger, DATETIME, ForeignKey, event, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -26,6 +26,9 @@ class Story(Base):
     user: Mapped["User"] = relationship("User", back_populates="stories")
     # 1(story) to N(media)
     media: Mapped[list["Medium"]] = relationship("Medium", back_populates="story", lazy="selectin")
+    highlights: Mapped[list["Highlight"]] = relationship(
+        "Highlight", secondary="highlight_stories", back_populates="story_ids"
+    )
     likes: Mapped[list["StoryLike"]] = relationship("StoryLike", back_populates="story")
     views: Mapped[list["StoryView"]] = relationship("StoryView", back_populates="story",lazy="selectin")
     
@@ -58,3 +61,29 @@ class StoryView(Base):
 def set_expiration_date(_, __, target: Story):
     if target.expiration_date is None:
         target.expiration_date = target.calculate_expiration_date(target.creation_date)
+
+class Highlight(Base):
+    __tablename__ = "highlights"
+
+    # highlight_id
+    highlight_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    # user_id
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
+    highlight_name: Mapped[str] = mapped_column(String(15), nullable=False)
+    cover_image_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("media.image_id"))
+    
+    story_ids: Mapped[list[int]] = relationship("Story", secondary="highlight_stories", back_populates="highlights")
+    media: Mapped["Medium"] = relationship("Medium", lazy="selectin")
+    subusers: Mapped[list[int]] = relationship("User", back_populates="highlights")
+
+class HighlightSubusers(Base):
+    __tablename__ = "highlight_subusers"
+
+    highlight_id = mapped_column(ForeignKey("highlights.highlight_id"), primary_key=True)
+    user_id = mapped_column(ForeignKey("users.user_id"), primary_key=True)
+
+class HighlightStories(Base):
+    __tablename__ = "highlight_stories"
+
+    highlight_id = mapped_column(ForeignKey("highlights.highlight_id"), primary_key=True)
+    story_id = mapped_column(ForeignKey("stories.story_id"), primary_key=True)

@@ -33,3 +33,7 @@ class CommentServerError(HTTPException):
         # HTTPException 초기화
         super().__init__(HTTP_500_INTERNAL_SERVER_ERROR, message)
         self.original_exception = original_exception
+
+class DebugError(InstacloneHttpException):
+    def __init__(self, status_code: int, detail: str) -> None:
+        super().__init__(status_code=status_code, detail=detail)

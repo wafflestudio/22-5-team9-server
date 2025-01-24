@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from instaclone.app.user.models import User
 from instaclone.database.annotation import transactional
 from instaclone.database.connection import SESSION
-from instaclone.app.user.errors import UsernameAlreadyExistsError, EmailAlreadyExistsError, PhoneNumberAlreadyExistsError
+from instaclone.app.user.errors import UsernameAlreadyExistsError, EmailAlreadyExistsError, PhoneNumberAlreadyExistsError, UserDoesNotExistError
 
 
 class UserStore:
@@ -20,9 +20,12 @@ class UserStore:
     async def get_user_by_phone_number(self, phone_number: str) -> User | None:
         return await SESSION.scalar(select(User).where(User.phone_number == phone_number))
     
-    async def get_user_by_id(self, user_id: int) -> User | None:
-        return await SESSION.scalar(select(User).where(User.user_id == user_id))
-    
+    async def get_user_by_id(self, user_id: int) -> User:
+        user = await SESSION.scalar(select(User).where(User.user_id==user_id))
+        if not user:
+            raise UserDoesNotExistError()
+        return user
+
     async def edit_user(
         self, 
         user: User,

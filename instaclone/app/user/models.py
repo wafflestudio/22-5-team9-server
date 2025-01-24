@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from instaclone.app.post.models import Post
     from instaclone.app.story.models import Story
     from instaclone.app.comment.models import Comment
-    from instaclone.app.story.models import StoryView
+    from instaclone.app.story.models import StoryView, Highlight
     from instaclone.app.like.models import PostLike, StoryLike, CommentLike
     from instaclone.app.dm.models import Message
 
@@ -58,6 +58,7 @@ class User(Base):
     comment_likes: Mapped[list["CommentLike"]] = relationship("CommentLike", back_populates="user")
     sent_messages: Mapped[List["Message"]] = relationship("Message", back_populates="sender", foreign_keys="[Message.sender_id]")
     received_messages: Mapped[List["Message"]] = relationship("Message", back_populates="receiver", foreign_keys="[Message.receiver_id]")
+    highlights: Mapped[list["Highlight"]] = relationship("Highlight", back_populates="subusers")
 
 class BlockedToken(Base):
     __tablename__ = "blocked_token"
