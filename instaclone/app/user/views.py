@@ -1,10 +1,11 @@
 import asyncio
-from typing import Annotated, List
-from fastapi import APIRouter, Depends, Query
+from typing import Annotated, List, Optional
+from fastapi import APIRouter, Depends, Query, UploadFile
 
 from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest, GenderEnum
 from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse, RefreshTokenResponse
 from instaclone.app.user.service import UserService
+from instaclone.app.medium.service import MediumService
 
 from instaclone.app.user.models import User
 from instaclone.app.user.service import UserService
@@ -64,14 +65,21 @@ async def view_profile(
 async def update_me(
     user: Annotated[User, Depends(login_with_header)],
     user_service: Annotated[UserService, Depends()],
+    medium_service: Annotated[MediumService, Depends()],
     edit_request: UserEditRequest = Depends(),
+    profile_image: Optional[UploadFile] = None
 ) -> UserDetailResponse:
+    profile_path = None
+    if profile_image:
+        profile_medium = await medium_service.file_to_medium(profile_image)
+        profile_path = profile_medium.url
+        
     updated_user = await user_service.edit_user(
         user=user,
         username=edit_request.username,
         full_name=edit_request.full_name,
         introduce=edit_request.introduce,
-        profile_image=edit_request.profile_image,
+        profile_image=profile_path,
         website=edit_request.website,
         gender=edit_request.gender
     )

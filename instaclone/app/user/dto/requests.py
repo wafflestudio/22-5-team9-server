@@ -78,7 +78,6 @@ class GenderEnum(str, Enum):
 class UserEditRequest(BaseModel):
     username: Annotated[Optional[str], AfterValidator(skip_none(validate_username))] = None
     full_name: Annotated[Optional[str], AfterValidator(skip_none(validate_full_name))] = None
-    profile_image: Annotated[Optional[str], AfterValidator(skip_none(validate_profile_image))] = None
     introduce: Annotated[Optional[str], AfterValidator(skip_none(validate_description))] = None
     website: Annotated[Optional[str], AfterValidator(skip_none(validate_website))] = None
     gender: Annotated[Optional[GenderEnum], None] = None
