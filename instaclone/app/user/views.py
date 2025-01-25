@@ -23,8 +23,8 @@ async def login_with_header(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
 ) -> User:
     token = credentials.credentials
-    username = user_service.validate_access_token(token)
-    user = await user_service.get_user_by_username(username)
+    user_id = user_service.validate_access_token(token)
+    user = await user_service.get_user_by_id(int(user_id))
     if not user:
         raise InvalidTokenError()
     return user
@@ -67,10 +67,10 @@ async def update_me(
     user_service: Annotated[UserService, Depends()],
     medium_service: Annotated[MediumService, Depends()],
     edit_request: UserEditRequest = Depends(),
-    profile_image: Optional[UploadFile] = None
+    profile_image: Optional[UploadFile | str] = None
 ) -> UserDetailResponse:
     profile_path = None
-    if profile_image:
+    if profile_image and isinstance(profile_image, UploadFile):
         profile_medium = await medium_service.file_to_medium(profile_image)
         profile_path = profile_medium.url
         
