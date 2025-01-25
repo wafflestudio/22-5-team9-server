@@ -23,8 +23,8 @@ async def login_with_header(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
 ) -> User:
     token = credentials.credentials
-    username = user_service.validate_access_token(token)
-    user = await user_service.get_user_by_username(username)
+    user_id = user_service.validate_access_token(token)
+    user = await user_service.get_user_by_id(int(user_id))
     if not user:
         raise InvalidTokenError()
     return user

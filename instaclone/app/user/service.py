@@ -48,7 +48,7 @@ class UserService:
     
     def validate_access_token(self, token: str) -> str:
         """
-        access_token을 검증하고, username을 반환합니다.
+        access_token을 검증하고, user_id을 반환합니다.
         """
         try:
             payload = jwt.decode(
@@ -101,9 +101,8 @@ class UserService:
 
         if not user or user.password != password:
             raise InvalidUsernameOrPasswordError()
-
-        access_token = create_access_token(user.username, expires=timedelta(minutes=10))
-        refresh_token = create_refresh_token(user.username, expires=timedelta(hours=24))
+        access_token = create_access_token(user.user_id, expires=timedelta(minutes=10))
+        refresh_token = create_refresh_token(user.user_id, expires=timedelta(hours=24))
 
         return access_token, refresh_token
     

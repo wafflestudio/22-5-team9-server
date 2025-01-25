@@ -17,12 +17,12 @@ import jwt
 
 SECRET_KEY = "secret_for_jwt"
 
-def create_access_token(username: str, expires: timedelta) -> str:
+def create_access_token(user_id: int, expires: timedelta) -> str:
     """
     access token을 생성합니다.
     """
     payload = {
-        "sub": username,
+        "sub": str(user_id),
         "exp": datetime.now(timezone.utc) + expires,
         "type": "access"
     }
@@ -30,12 +30,12 @@ def create_access_token(username: str, expires: timedelta) -> str:
     
     return access_token
 
-def create_refresh_token(username: str, expires: timedelta) -> str:
+def create_refresh_token(user_id: int, expires: timedelta) -> str:
     """
     refresh token을 생성합니다.
     """
     payload = {
-        "sub": username,
+        "sub": str(user_id),
         "jti": uuid4().hex,
         "exp": datetime.now(timezone.utc) + expires,
         "type": "refresh"
@@ -46,7 +46,7 @@ def create_refresh_token(username: str, expires: timedelta) -> str:
 
 def validate_access_token(access_token: str) -> str:
     """
-    access token을 검증하고 username을 반환합니다.
+    access token을 검증하고 user_id을 반환합니다.
     """
     try:
         payload = jwt.decode(access_token, SECRET_KEY, algorithms=["HS256"])
@@ -62,7 +62,7 @@ def validate_access_token(access_token: str) -> str:
 
 async def validate_refresh_token(refresh_token: str) -> str:
     """
-    refresh token을 검증하고 username을 반환합니다.
+    refresh token을 검증하고 user_id을 반환합니다.
     """
     try:
         payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
@@ -83,15 +83,15 @@ async def refresh_access_token(refresh_token: str, access_expires: timedelta, re
     refresh token으로 새로운 access token을 생성합니다.
     access token, refresh token을 반환합니다.
     """
-    username = await validate_refresh_token(refresh_token)
+    user_id = await validate_refresh_token(refresh_token)
     to_encode = {
-        "sub": username,
+        "sub": user_id,
         "exp": datetime.now(timezone.utc) + access_expires,
         "type": "access"
     }
     await block_refresh_token(refresh_token)
     access_token = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
-    refresh_token = create_refresh_token(username, expires=refresh_expires)
+    refresh_token = create_refresh_token(int(user_id), expires=refresh_expires)
 
     return access_token, refresh_token
 
@@ -134,8 +134,8 @@ async def ws_login_with_header(websocket: WebSocket) -> User:
         raise InvalidHeaderFormatError()
     
     token = authorization[len(token_prefix):]
-    username = validate_access_token(token)
-    user = await SESSION.scalar(select(User).where(User.username == username))
+    user_id = validate_access_token(token)
+    user = await SESSION.scalar(select(User).where(User.user_id == user_id))
     if not user:
         raise InvalidTokenError()
     return user
