@@ -112,9 +112,9 @@ class LocationStore:
             raise LocationNotFoundError()
         query = (
             select(User.user_id)
-            .join(Follower, Follower.follower_id == User.user_id)
+            .join(Follower, Follower.following_id == User.user_id)
             .where(
-                Follower.following_id == user_id, 
+                Follower.follower_id == user_id, 
                 User.location_status == location_id,
                 User.location_expired_at > datetime.utcnow()
             )
