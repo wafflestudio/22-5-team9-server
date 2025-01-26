@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from pydantic import EmailStr
-from sqlalchemy import String, BigInteger, Date, Boolean
+from datetime import datetime
+from sqlalchemy import String, BigInteger, Date, Boolean, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from instaclone.database.common import Base
 
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
     from instaclone.app.story.models import StoryView, Highlight
     from instaclone.app.like.models import PostLike, StoryLike, CommentLike
     from instaclone.app.dm.models import Message
+    from instaclone.app.location.models import LocationTag
 
 class User(Base):
     __tablename__ = "users"
@@ -43,6 +45,10 @@ class User(Base):
     introduce: Mapped[str] = mapped_column(String(100), nullable=True)
     # website
     website: Mapped[str] = mapped_column(String(100), nullable=True)
+    # location_status : Off-1
+    location_status: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("location_tags.location_id"), nullable=True, default=1)
+    # location_expired_at
+    location_expired_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
 
     # relationships
@@ -59,6 +65,7 @@ class User(Base):
     sent_messages: Mapped[List["Message"]] = relationship("Message", back_populates="sender", foreign_keys="[Message.sender_id]")
     received_messages: Mapped[List["Message"]] = relationship("Message", back_populates="receiver", foreign_keys="[Message.receiver_id]")
     highlights: Mapped[list["Highlight"]] = relationship("Highlight", back_populates="subusers")
+    current_location: Mapped[Optional["LocationTag"]] = relationship("LocationTag", back_populates="users")
 
 class BlockedToken(Base):
     __tablename__ = "blocked_token"
