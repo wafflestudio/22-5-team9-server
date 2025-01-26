@@ -2,7 +2,7 @@ from instaclone.database.connection import SESSION
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
 from sqlalchemy.sql import exists, update
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from instaclone.app.user.models import User
 from instaclone.app.follower.models import Follower
@@ -27,6 +27,28 @@ class LocationStore:
 
     
     async def get_location_tags(self):
+        current_time = datetime.utcnow()
+
+        query = select(User.user_id, User.location_status).where(User.location_expired_at < current_time)
+        result = await SESSION.execute(query)
+        expired_users = result.all()
+
+        for user_id, location_status in expired_users:
+            current_location = await SESSION.scalar(select(LocationTag).where(LocationTag.location_id == location_status))
+            if current_location:
+                if location_status != 1:
+                    current_location.citation_count = max(0, current_location.citation_count - 1)
+                
+                query = update(User).where(User.user_id == user_id).values(location_status=1, location_expired_at=current_time + timedelta(hours=100))
+                await SESSION.execute(query)
+                try:
+                    await SESSION.commit()
+                except IntegrityError:
+                    await SESSION.rollback()
+                    raise FetchError()
+            else :
+                raise LocationNotFoundError()
+
         query = select(LocationTag)
         result = await SESSION.execute(query)
         locations = result.scalars().all()
