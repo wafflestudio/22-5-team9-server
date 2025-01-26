@@ -1,5 +1,5 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends
+from typing import Annotated, List, Optional
+from fastapi import APIRouter, Depends, UploadFile, Form
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from instaclone.app.post.dto.requests import PostPutRequest, PostGetRequest, PostPatchRequest
@@ -19,14 +19,21 @@ async def create_post(
     user: Annotated[User, Depends(login_with_header)],
     post_service: Annotated[PostService, Depends()],
     medium_service: Annotated[MediumService, Depends()],
-    post_request: PostPutRequest = Depends()
+    media: List[UploadFile],
+    post_text: Optional[str] = Form(None),
+    location: Optional[str] = Form(None)
 ) -> PostDetailResponse:
-    media = [await medium_service.file_to_medium(file) for file in post_request.media]
+    post_request = PostPutRequest(
+        media=media,
+        location=location,
+        post_text=post_text
+    )
+    post_media = [await medium_service.file_to_medium(file) for file in post_request.media]
     post = await post_service.create_post(
         user=user,
         location=post_request.location,
         post_text=post_request.post_text,
-        media=media
+        media=post_media
     )
     return await PostDetailResponse.from_post(post)
 
