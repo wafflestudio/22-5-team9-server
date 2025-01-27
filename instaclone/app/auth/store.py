@@ -20,7 +20,6 @@ async def get_or_create_user_from_google(user_info: dict):
                     email=user_info.get("email"),
                     full_name=user_info.get("name"),
                     password="default",
-                    phone_number=99999999999,
                     creation_date=datetime.today().date(),
                     profile_image=user_info.get("picture"),
                     social=True

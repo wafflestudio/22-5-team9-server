@@ -8,7 +8,7 @@ from instaclone.app.auth.store import get_or_create_user_from_google
 
 GOOGLE_CLIENT_ID = GOOGLE_SETTINGS.client_id
 GOOGLE_CLIENT_SECRET = GOOGLE_SETTINGS.client_secret
-GOOGLE_REDIRECT_URI = "http://localhost:8000/auth/callback"  # 설정한 리디렉션 URI
+GOOGLE_REDIRECT_URI = "https://waffle-instaclone.kro.kr/auth/callback"  # 설정한 리디렉션 URI
 
 google_oauth_router = APIRouter()
 
