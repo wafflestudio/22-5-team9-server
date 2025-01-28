@@ -26,14 +26,7 @@ async def get_my_tag(
 ) -> int:
     return await location_service.get_location(user.user_id)
 
-@location_router.get("/{tag_id}", status_code=HTTP_200_OK)
-async def get_tag_by_id(
-    tag_id: int,
-    location_service: Annotated[LocationService, Depends()] 
-) -> LocationResponse :
-    return await location_service.get_tag(tag_id)
-
-@location_router.get("/loc_tags", status_code=HTTP_200_OK)
+@location_router.get("/tags", status_code=HTTP_200_OK)
 async def get_all_tags(
     location_service: Annotated[LocationService, Depends()],
 ) -> list[LocationResponse]:
@@ -62,7 +55,13 @@ async def search_by_location_name(
     name: str
 ) -> list[int]:
     return await location_service.get_locations_matching_name(name)
-    
+
+@location_router.get("/{tag_id}", status_code=HTTP_200_OK)
+async def get_tag_by_id(
+    tag_id: int,
+    location_service: Annotated[LocationService, Depends()] 
+) -> LocationResponse :
+    return await location_service.get_tag(tag_id)    
 
 @location_router.delete("/{tag_id}", status_code=HTTP_204_NO_CONTENT)
 async def delete_location_tag(
