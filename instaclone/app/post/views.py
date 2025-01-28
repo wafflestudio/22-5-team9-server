@@ -121,8 +121,13 @@ async def edit_post(
     post_id: int,
     user: Annotated[User, Depends(login_with_header)],
     post_service: Annotated[PostService, Depends()],
-    post_request: PostPatchRequest = Depends()
+    location: Optional[str] = Form(None),
+    post_text: Optional[str] = Form(None)
 ) -> PostDetailResponse:
+    post_request = PostPatchRequest(
+        location=location,
+        post_text=post_text
+    )
     updated_post = await post_service.edit_post(
         post_id=post_id,
         current_user=user,
