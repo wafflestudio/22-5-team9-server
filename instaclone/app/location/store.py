@@ -96,7 +96,20 @@ class LocationStore:
             raise FetchError()
 
     async def update_user_location_status(self, user_id: int, old_tag_id: int, new_tag_id: int, expire_at: datetime):
-        old_tag_id = old_tag_id or 1
+        if old_tag_id is None:
+            old_tag_id = 1
+            query = (
+                update(User)
+                .where(User.user_id == user_id)
+                .values(location_status=1)
+            )
+            await SESSION.execute(query)
+            try:
+                await SESSION.commit()
+            except IntegrityError:
+                await SESSION.rollback()
+                raise FetchError()
+            return "Initialize location status. Retry assign"
         
         if (old_tag_id == new_tag_id) :
             if (old_tag_id == 1) :
