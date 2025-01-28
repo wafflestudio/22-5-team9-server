@@ -110,5 +110,5 @@ class StoryService:
         highlight = await self.story_store.change_highlight_name(user=user, highlight_id=highlight_id, highlight_name=highlight_name)
         return highlight
 
-    async def get_story_viewers(self, story_id: int, owner: User) -> List[User]:
+    async def get_story_viewers(self, story_id: int, owner: User) -> Sequence[User]:
         return await self.story_store.get_story_viewers(story_id, owner)

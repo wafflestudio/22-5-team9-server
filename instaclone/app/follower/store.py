@@ -27,8 +27,8 @@ class FollowerStore:
             following_id=follow_id,
         )
 
-        SESSION.add(new_follow)
         try:
+            SESSION.add(new_follow)
             await SESSION.commit()
         except IntegrityError:
             await SESSION.rollback()
@@ -42,8 +42,8 @@ class FollowerStore:
         if not existing_follow:
             raise NotFollowingError()
         
-        await SESSION.delete(existing_follow)
         try:
+            await SESSION.delete(existing_follow)
             await SESSION.commit()
         except IntegrityError:
             await SESSION.rollback()

@@ -4,6 +4,7 @@ from sqlalchemy.sql import select
 
 from instaclone.app.medium.models import Medium
 from instaclone.database.annotation import transactional
+from instaclone.app.medium.errors import FailedToDelete, FailedToSave
 
 
 class MediumStore:
@@ -27,14 +28,22 @@ class MediumStore:
                          ) -> Medium:
         medium = Medium(file_name=file_name, 
                         url=url, post_id=post_id)
-        SESSION.add(medium)
-        await SESSION.commit()
-        return medium
+        try:
+            SESSION.add(medium)
+            await SESSION.commit()
+            return medium
+        except:
+            await SESSION.rollback()
+            raise FailedToSave()
 
     #@transactional
     async def delete_medium(self, image_id: int) -> None:
         medium = await self.get_medium_by_id(image_id)
-        if medium:
-            await SESSION.delete(medium)
-            await SESSION.commit()
+        try:
+            if medium:
+                await SESSION.delete(medium)
+                await SESSION.commit()
+        except Exception as e:
+            await SESSION.rollback()
+            raise FailedToDelete()
 

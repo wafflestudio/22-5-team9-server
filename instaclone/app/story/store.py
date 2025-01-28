@@ -8,7 +8,7 @@ from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
 from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories, HighlightSubusers
 from instaclone.database.connection import SESSION
-from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError, CannotChangeAdminError, CannotChangeHighlightNameError, StoryPermissionAccessError
+from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError, CannotChangeAdminError, CannotChangeHighlightNameError, StoryPermissionAccessError, StoryAddError, StoryDeleteError, StoryViewRecordError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -31,10 +31,14 @@ class StoryStore:
         else:
             user = user_in_session
 
-        story = Story(user=user, media=media, creation_date=datetime.now(timezone.utc))
-        SESSION.add(story)
-        await SESSION.commit()
-        return story
+        try:
+            story = Story(user=user, media=media, creation_date=datetime.now(timezone.utc))
+            SESSION.add(story)
+            await SESSION.commit()
+            return story
+        except:
+            await SESSION.rollback()
+            raise StoryAddError()
     
     async def get_story_list(
         self,
@@ -76,9 +80,13 @@ class StoryStore:
             raise StoryNotExistsError()
         if story.user_id != user.user_id:
             raise StoryPermissionError()
-        story.media = media
-        await SESSION.commit()
-        return story
+        try:
+            story.media = media
+            await SESSION.commit()
+            return story
+        except:
+            await SESSION.rollback()
+            raise StoryAddError()
 
     # @transactional
     async def delete_story(
@@ -93,13 +101,16 @@ class StoryStore:
             raise StoryNotExistsError()
         if story.user_id != user.user_id:
             raise StoryPermissionError()
-        
-        delete_query = delete(Story).where(Story.story_id == story_id)
-        await self.clean_up(user=user, story_id=story_id)
-        await SESSION.execute(delete(Medium).where(Medium.story_id == story_id))
-        await SESSION.execute(delete_query)
-        await SESSION.commit()
-        return "SUCCESS"
+        try:
+            delete_query = delete(Story).where(Story.story_id == story_id)
+            await self.clean_up(user=user, story_id=story_id)
+            await SESSION.execute(delete(Medium).where(Medium.story_id == story_id))
+            await SESSION.execute(delete_query)
+            await SESSION.commit()
+            return "SUCCESS"
+        except:
+            await SESSION.rollback()
+            raise StoryDeleteError()
     
     async def create_highlight(
             self,
@@ -121,9 +132,9 @@ class StoryStore:
         if highlight_name in highlight_names:
             raise HighlightNameError()
 
-        highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
 
         try:
+            highlight = Highlight(user_id=user.user_id, highlight_name=highlight_name, media=cover_image)
             SESSION.add(highlight)
             await SESSION.commit()
         except HTTPException as e:
@@ -170,12 +181,12 @@ class StoryStore:
         if story_id in story_ids:
             raise StoryInHighlightsError()
         
-        highlight_story: HighlightStories = HighlightStories(
-            highlight_id=highlight.highlight_id, story_id=story.story_id
-        )
-        SESSION.add(highlight_story)
 
         try:
+            highlight_story: HighlightStories = HighlightStories(
+                highlight_id=highlight.highlight_id, story_id=story.story_id
+            )
+            SESSION.add(highlight_story)
             await SESSION.commit()
             await SESSION.refresh(highlight)
         except HTTPException as e:
@@ -220,9 +231,9 @@ class StoryStore:
         if user_id in highlight_users:
             raise UserAddedError()
         
-        highlight_user = HighlightSubusers(highlight_id=highlight_id, user_id=user_id)
 
         try:
+            highlight_user = HighlightSubusers(highlight_id=highlight_id, user_id=user_id)
             SESSION.add(highlight_user)
             await SESSION.commit()
             await SESSION.refresh(highlight)
@@ -491,11 +502,14 @@ class StoryStore:
             StoryView.user_id == viewer.user_id
         )
         existing_view = await SESSION.scalar(query)
-        
-        if not existing_view:
-            view = StoryView(story_id=story_id, user_id=viewer.user_id)
-            SESSION.add(view)
-            await SESSION.commit()
+        try:
+            if not existing_view:
+                view = StoryView(story_id=story_id, user_id=viewer.user_id)
+                SESSION.add(view)
+                await SESSION.commit()
+        except:
+            await SESSION.rollback()
+            raise StoryViewRecordError()
     
     # getting users who viewed story
     async def get_story_viewers(
