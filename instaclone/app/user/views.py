@@ -1,6 +1,7 @@
 import asyncio
 from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, Query, UploadFile
+import starlette.datastructures
 
 from instaclone.app.user.dto.requests import UserEditRequest, UserSigninRequest, UserSignupRequest, GenderEnum
 from instaclone.app.user.dto.responses import UserDetailResponse, UserSigninResponse, RefreshTokenResponse
@@ -70,7 +71,7 @@ async def update_me(
     profile_image: Optional[UploadFile | str] = None
 ) -> UserDetailResponse:
     profile_path = None
-    if profile_image and isinstance(profile_image, UploadFile):
+    if profile_image and isinstance(profile_image, starlette.datastructures.UploadFile):
         profile_medium = await medium_service.file_to_medium(profile_image)
         profile_path = profile_medium.url
         
