@@ -19,6 +19,13 @@ async def add_tag(
     await location_service.create_location(user.user_id, name=name)
     return "SUCCESS"
 
+@location_router.get("/my", status_code=HTTP_200_OK)
+async def get_my_tag(
+    user: Annotated[User, Depends(login_with_header)],
+    location_service: Annotated[LocationService, Depends()]
+) -> int:
+    return await location_service.get_location(user.user_id)
+
 @location_router.get("/loc_tags", status_code=HTTP_200_OK)
 async def get_all_tags(
     location_service: Annotated[LocationService, Depends()],

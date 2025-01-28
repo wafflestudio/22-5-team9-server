@@ -21,10 +21,14 @@ class LocationService:
             LocationResponse(
                 tag_id=loc.location_id,
                 name=loc.name,
-                citation=loc.citation_count
+                citation=loc.citation_count,
+                owner=loc.owner
             )
             for loc in locations
         ]
+
+    async def get_location(self, user_id: int):
+        return await self.location_store.get_my_location(user_id)
 
     async def update_location_status(self, user_id: int, old_tag_id: int, new_tag_id: int, expiration_delta: int, expiration_unit: str):
         if expiration_delta <= 0:

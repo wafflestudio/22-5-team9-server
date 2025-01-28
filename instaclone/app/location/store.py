@@ -24,6 +24,16 @@ class LocationStore:
         except IntegrityError:
             await SESSION.rollback()
             raise LocationCreationError()
+        
+    async def get_my_location(self, user_id: int):
+        query = select(User.location_status).where(User.user_id==user_id)
+        result = await SESSION.execute(query)
+        tag = result.scalar()
+
+        if not tag:
+            raise LocationNotFoundError()
+        
+        return tag
 
     
     async def get_location_tags(self):
