@@ -29,6 +29,15 @@ class LocationService:
 
     async def get_location(self, user_id: int):
         return await self.location_store.get_my_location(user_id)
+    
+    async def get_tag(self, tag_id: int):
+        tag = await self.location_store.get_tag_by_id(tag_id)
+        return LocationResponse(
+            tag_id=tag.location_id,
+            name=tag.name,
+            citation=tag.citation_count,
+            owner=tag.owner
+        )
 
     async def update_location_status(self, user_id: int, old_tag_id: int, new_tag_id: int, expiration_delta: int, expiration_unit: str):
         if expiration_delta <= 0:

@@ -34,7 +34,15 @@ class LocationStore:
             raise LocationNotFoundError()
         
         return tag
-
+    
+    async def get_tag_by_id(self, tag_id: int):
+        query = select(LocationTag).where(LocationTag.location_id == tag_id)
+        result = await SESSION.execute(query)
+        tag = result.scalar()
+        if not tag:
+            raise LocationNotFoundError()
+        
+        return tag
     
     async def get_location_tags(self):
         current_time = datetime.utcnow()

@@ -26,6 +26,13 @@ async def get_my_tag(
 ) -> int:
     return await location_service.get_location(user.user_id)
 
+@location_router.get("/{tag_id}", status_code=HTTP_200_OK)
+async def get_tag_by_id(
+    tag_id: int,
+    location_service: Annotated[LocationService, Depends()] 
+) -> LocationResponse :
+    return await location_service.get_tag(tag_id)
+
 @location_router.get("/loc_tags", status_code=HTTP_200_OK)
 async def get_all_tags(
     location_service: Annotated[LocationService, Depends()],
