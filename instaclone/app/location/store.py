@@ -10,14 +10,14 @@ from instaclone.app.location.models import LocationTag
 from instaclone.app.location.errors import *
 
 class LocationStore:
-    async def add_location(self, name: str):
+    async def add_location(self, user_id: int, name: str):
         existing_location_query = select(exists().where(LocationTag.name == name))
         existing_location = await SESSION.execute(existing_location_query)
         
         if existing_location.scalar():
             raise AlreadyExistLocationTagError()
 
-        location = LocationTag(name=name)
+        location = LocationTag(owner=user_id, name=name)
         SESSION.add(location)
         try:
             await SESSION.commit()
@@ -79,7 +79,8 @@ class LocationStore:
 
     async def update_user_location_status(self, user_id: int, old_tag_id: int, new_tag_id: int, expire_at: datetime):
         if (old_tag_id == new_tag_id) :
-            raise SameTagError()
+            if (old_tag_id == 1) :
+                raise SameTagError()
         
         if (old_tag_id != 1) :
             old_location = await SESSION.scalar(select(LocationTag).where(LocationTag.location_id == old_tag_id))
@@ -124,3 +125,26 @@ class LocationStore:
         result = await SESSION.execute(query)
         followers = [row[0] for row in result.all()]
         return followers
+    
+
+    async def fetch_locations_by_name(self, name: str):
+        query = select(LocationTag).where(LocationTag.name.ilike(f"%{name}%"))
+        result = await SESSION.execute(query)
+        locations = result.scalars().all()
+        return [location.location_id for location in locations]
+    
+
+    async def delete_tag_for_owner(self, tag_id: int, user_id: int):
+        location_tag = await SESSION.scalar(select(LocationTag).where(LocationTag.location_id == tag_id, LocationTag.owner == user_id))
+        if tag_id == 1 :
+            raise CannotDeleteError()
+
+        if not location_tag:
+            raise AccessDeniedError()
+        
+        try:
+            await SESSION.delete(location_tag)
+            await SESSION.commit()
+        except IntegrityError:
+            await SESSION.rollback()
+            raise FetchError()

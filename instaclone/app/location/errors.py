@@ -20,3 +20,10 @@ class LocationCreationError(InstacloneHttpException):
 class SameTagError(InstacloneHttpException):
     def __init__(self) -> None:
         super().__init__(HTTP_400_BAD_REQUEST, "Have already selected this location tag")
+
+class AccessDeniedError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, "Cannot delete the tag. You're not the owner or the tag doesn't exist")
+class CannotDeleteError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_400_BAD_REQUEST, "You cannot delete off tag")

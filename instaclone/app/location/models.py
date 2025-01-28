@@ -9,5 +9,6 @@ class LocationTag(Base):
     location_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(20), nullable=False)
     citation_count: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
+    owner: Mapped[int] = mapped_column(Integer, nullable=True)
 
     users: Mapped[list["User"]] = relationship("User", back_populates="current_location")

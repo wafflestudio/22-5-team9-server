@@ -6,18 +6,17 @@ from instaclone.app.user.models import User
 from instaclone.app.location.service import LocationService
 from instaclone.app.location.dto.requests import LocationRequest
 from instaclone.app.location.dto.responses import LocationResponse
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 location_router = APIRouter()
 
 @location_router.post("/", status_code=HTTP_201_CREATED)
 async def add_tag(
+    user: Annotated[User, Depends(login_with_header)],
     location_service: Annotated[LocationService, Depends()],
     name: str
 ) -> str:
-    await location_service.create_location(
-        name=name
-    )
+    await location_service.create_location(user.user_id, name=name)
     return "SUCCESS"
 
 @location_router.get("/loc_tags", status_code=HTTP_200_OK)
@@ -43,3 +42,18 @@ async def get_followers_with_same_location(
 ) -> list[int]:
     return await location_service.get_followers_by_location(user.user_id, location_id)
 
+@location_router.get("/search", status_code=HTTP_200_OK)
+async def search_by_location_name(
+    location_service: Annotated[LocationService, Depends()],
+    name: str
+) -> list[int]:
+    return await location_service.get_locations_matching_name(name)
+    
+
+@location_router.delete("/{tag_id}", status_code=HTTP_204_NO_CONTENT)
+async def delete_location_tag(
+    tag_id: int,
+    user: Annotated[User, Depends(login_with_header)],
+    location_service: Annotated[LocationService, Depends()]
+) -> None:
+    await location_service.delete_tag(tag_id, user.user_id)

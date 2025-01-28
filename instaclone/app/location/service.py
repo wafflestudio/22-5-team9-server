@@ -3,6 +3,7 @@ from typing import Annotated
 from datetime import datetime, timedelta
 
 from instaclone.common.errors import InvalidFieldFormatError
+
 from instaclone.app.location.store import LocationStore
 from instaclone.app.location.dto.responses import LocationResponse
 
@@ -11,8 +12,8 @@ class LocationService:
     def __init__(self, location_store: Annotated[LocationStore, Depends()]):
         self.location_store = location_store
 
-    async def create_location(self, name: str):
-        await self.location_store.add_location(name)
+    async def create_location(self, user_id: int, name: str):
+        await self.location_store.add_location(user_id, name)
 
     async def get_all_locations(self):
         locations = await self.location_store.get_location_tags()
@@ -47,3 +48,8 @@ class LocationService:
     async def get_followers_by_location(self, user_id: int, location_id: int):
         return await self.location_store.fetch_followers_by_location(user_id, location_id)
         
+    async def get_locations_matching_name(self, name: str):
+        return await self.location_store.fetch_locations_by_name(name)
+    
+    async def delete_tag(self, tag_id: int, user_id: int):
+        await self. location_store.delete_tag_for_owner(tag_id, user_id)
