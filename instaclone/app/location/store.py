@@ -109,7 +109,7 @@ class LocationStore:
             except IntegrityError:
                 await SESSION.rollback()
                 raise FetchError()
-            return "Initialize location status. Retry assign"
+            raise InitialError()
         
         if (old_tag_id == new_tag_id) :
             if (old_tag_id == 1) :
