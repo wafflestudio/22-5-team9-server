@@ -17,6 +17,7 @@ import instaclone.app.post.models
 import instaclone.app.story.models
 import instaclone.app.like.models
 import instaclone.app.dm.models
+import instaclone.app.location.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
