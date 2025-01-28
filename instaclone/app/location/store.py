@@ -96,6 +96,8 @@ class LocationStore:
             raise FetchError()
 
     async def update_user_location_status(self, user_id: int, old_tag_id: int, new_tag_id: int, expire_at: datetime):
+        old_tag_id = old_tag_id or 1
+        
         if (old_tag_id == new_tag_id) :
             if (old_tag_id == 1) :
                 raise SameTagError()
