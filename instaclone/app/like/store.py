@@ -44,8 +44,8 @@ class LikeStore:
             content_id=content_id,
         )
 
-        SESSION.add(new_like)
         try:
+            SESSION.add(new_like)
             await SESSION.commit()
         except IntegrityError:
             await SESSION.rollback()
@@ -65,8 +65,8 @@ class LikeStore:
         if not like:
             raise LikeNotFoundError()
 
-        await SESSION.delete(like)
         try:
+            await SESSION.delete(like)
             await SESSION.commit()
         except IntegrityError:
             await SESSION.rollback()

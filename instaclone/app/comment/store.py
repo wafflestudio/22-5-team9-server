@@ -63,8 +63,8 @@ class CommentStore:
         if comment.user_id != user_id:
             raise CommentPermissionError()
         
-        comment.comment_text = comment_text
         try:
+            comment.comment_text = comment_text
             await SESSION.commit()
             return comment
         
@@ -77,11 +77,11 @@ class CommentStore:
 
         if comment.user_id != user_id:
             raise CommentPermissionError()
-        child_delete_query = delete(Comment).where(Comment.parent_id == comment_id)
-        delete_query = delete(Comment).where(Comment.comment_id == comment_id)
-        await SESSION.execute(child_delete_query)
-        await SESSION.execute(delete_query)
         try:
+            child_delete_query = delete(Comment).where(Comment.parent_id == comment_id)
+            delete_query = delete(Comment).where(Comment.comment_id == comment_id)
+            await SESSION.execute(child_delete_query)
+            await SESSION.execute(delete_query)
             await SESSION.commit()
             return "SUCCESS"
         
