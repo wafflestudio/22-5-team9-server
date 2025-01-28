@@ -1,6 +1,14 @@
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_413_REQUEST_ENTITY_TOO_LARGE
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, HTTP_413_REQUEST_ENTITY_TOO_LARGE, HTTP_408_REQUEST_TIMEOUT
 
 from instaclone.common.errors import InstacloneHttpException
+
+class StoryAddError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_408_REQUEST_TIMEOUT, "Could not add story")
+
+class StoryDeleteError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_408_REQUEST_TIMEOUT, "Could not delete story")
 
 class UserNotFoundError(InstacloneHttpException):
     def __init__(self) -> None:
@@ -32,7 +40,11 @@ class HighlightDNEError(InstacloneHttpException):
         
 class StoryViewPermissionError(InstacloneHttpException):
     def __init__(self) -> None:
-        super().__init__(HTTP_401_UNAUTHORIZED, "Don't have permission to view story viewers")  
+        super().__init__(HTTP_401_UNAUTHORIZED, "Don't have permission to view story viewers") 
+
+class StoryViewRecordError(InstacloneHttpException):
+    def __init__(self) -> None:
+        super().__init__(HTTP_408_REQUEST_TIMEOUT, "Story view could not be recorded") 
 
 class StoryInHighlightsError(InstacloneHttpException):
     def __init__(self) -> None:

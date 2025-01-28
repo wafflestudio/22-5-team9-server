@@ -7,6 +7,7 @@ from instaclone.database.annotation import transactional
 from instaclone.app.medium.models import Medium
 from instaclone.app.user.models import User
 from datetime import datetime, timezone
+from instaclone.app.post.errors import PostEditPermissionError, PostNotFoundError, PostSaveFailedError, PostDeleteFailedError, PostDeletePermissionError
 
 
 class PostStore:
@@ -23,17 +24,25 @@ class PostStore:
     #@transactional
     async def add_post(self, user: User, location: str | None, post_text: str | None, media: List[Medium]) -> Post:
         post = Post(user_id=user.user_id, location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=user)
-        SESSION.add(post)
-        await SESSION.commit()
-        return post
+        try:
+            SESSION.add(post)
+            await SESSION.commit()
+            return post
+        except:
+            await SESSION.rollback()
+            raise PostSaveFailedError()
 
     # @transactional
     async def delete_post(self, post_id: int) -> None:
         post = await self.get_post_by_id(post_id)
-        if post:
-            await SESSION.delete(post)
-            await SESSION.commit()
-            # await SESSION.flush()
+        try:
+            if post:
+                await SESSION.delete(post)
+                await SESSION.commit()
+                # await SESSION.flush()
+        except:
+            await SESSION.rollback()
+            raise PostDeleteFailedError()
 
     async def update_post(
         self,
@@ -43,13 +52,17 @@ class PostStore:
     ) -> Post | None:
         post = await self.get_post_by_id(post_id)
         if not post:
-            return None
-        if location is not None:
-            post.location = location
-        if post_text is not None:
-            post.post_text = post_text
-        await SESSION.commit()
-        return post
+            raise PostNotFoundError()
+        try:
+            if location is not None:
+                post.location = location
+            if post_text is not None:
+                post.post_text = post_text
+            await SESSION.commit()
+            return post
+        except:
+            await SESSION.rollback()
+            raise PostSaveFailedError()
       
     async def get_all_posts(self):
         posts = await SESSION.execute(

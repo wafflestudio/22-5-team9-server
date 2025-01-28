@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, date
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Sequence
 from uuid import uuid4
 from pydantic import EmailStr
 
@@ -124,5 +124,5 @@ class UserService:
         new_access_token, new_refresh_token = await refresh_access_token(refresh_token, access_expires=timedelta(minutes=10), refresh_expires=timedelta(hours=24))
         return new_access_token, new_refresh_token
     
-    async def search_users(self, query: str) -> list[User]:
+    async def search_users(self, query: str) -> Sequence[User]:
         return await self.user_store.search_users(query)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from instaclone.app.user.models import User
 from instaclone.database.annotation import transactional
 from instaclone.database.connection import SESSION
-from instaclone.app.user.errors import UsernameAlreadyExistsError, EmailAlreadyExistsError, PhoneNumberAlreadyExistsError, UserDoesNotExistError
+from instaclone.app.user.errors import UsernameAlreadyExistsError, EmailAlreadyExistsError, PhoneNumberAlreadyExistsError, UserDoesNotExistError, UserAddError, UserDeleteError
 
 
 class UserStore:
@@ -43,21 +43,25 @@ class UserStore:
         else:
             user = user_in_session
 
-        if username:
-            user.username = username
-        if full_name:
-            user.full_name = full_name
-        if introduce:
-            user.introduce = introduce
-        if profile_image:
-            user.profile_image = profile_image
-        if website:
-            user.website = website
-        if gender:
-            user.gender = gender
+        try:
+            if username:
+                user.username = username
+            if full_name:
+                user.full_name = full_name
+            if introduce:
+                user.introduce = introduce
+            if profile_image:
+                user.profile_image = profile_image
+            if website:
+                user.website = website
+            if gender:
+                user.gender = gender
 
-        await SESSION.commit()
-        return user
+            await SESSION.commit()
+            return user
+        except:
+            await SESSION.rollback()
+            raise UserAddError
     
     async def add_user(
         self,
@@ -83,12 +87,17 @@ class UserStore:
         if image_path is None:
             image_path = "media_uploads/default.jpg"
 
-        user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image=image_path, gender=gender, birthday=birthday, introduce=introduce, website=website)
-        SESSION.add(user)
-        await SESSION.commit()
-        return user
+        try:
+            user = User(username=username, password=password, full_name=full_name, email=email, phone_number=phone_number, creation_date=datetime.today().date(), profile_image=image_path, gender=gender, birthday=birthday, introduce=introduce, website=website)
+            SESSION.add(user)
+            await SESSION.commit()
+            return user
+        except:
+            await SESSION.rollback()
+            raise UserAddError
+
     
-    async def search_users(self, query: str) -> list[User]:
+    async def search_users(self, query: str) -> Sequence[User]:
         stmt = (
             select(User)
             .where(User.username.like(f"{query}%"))
