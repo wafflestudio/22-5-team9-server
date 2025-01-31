@@ -15,11 +15,7 @@ class MediumStore:
         result = await SESSION.scalars(select(Medium).where(Medium.post_id == post_id))
         return result.all()
     
-    # async def get_media_by_story(self, story_id: int) -> Sequence[Medium]:
-    #     result = await SESSION.scalars(select(Medium).where(Medium.story_id == story_id))
-    #     return result.all()
-    
-   #@transactional
+    @transactional
     async def add_medium(self,
                          post_id: int | None,
                         #  story_id: int | None,
@@ -36,7 +32,7 @@ class MediumStore:
             await SESSION.rollback()
             raise FailedToSave()
 
-    #@transactional
+    @transactional
     async def delete_medium(self, image_id: int) -> None:
         medium = await self.get_medium_by_id(image_id)
         try:

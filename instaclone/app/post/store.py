@@ -22,7 +22,7 @@ class PostStore:
     async def get_recent_posts_by_user(self, user_id: int) -> Sequence[Post]:
         result = await SESSION.scalars(select(Post).where(Post.user_id == user_id).order_by(desc(Post.creation_date)).limit(2))
         return result.all()
-    #@transactional
+    @transactional
     async def add_post(self, user: User, location: str | None, post_text: str | None, media: List[Medium]) -> Post:
         post = Post(user_id=user.user_id, location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=user)
         try:
@@ -33,7 +33,7 @@ class PostStore:
             await SESSION.rollback()
             raise PostSaveFailedError()
 
-    # @transactional
+    @transactional
     async def delete_post(self, post_id: int) -> None:
         post = await self.get_post_by_id(post_id)
         comments = await SESSION.execute(
@@ -53,6 +53,7 @@ class PostStore:
             await SESSION.rollback()
             raise PostDeleteFailedError()
 
+    @transactional
     async def update_post(
         self,
         post_id: int,

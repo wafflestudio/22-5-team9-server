@@ -8,8 +8,10 @@ from instaclone.app.user.models import User
 from instaclone.app.follower.models import Follower
 from instaclone.app.location.models import LocationTag
 from instaclone.app.location.errors import *
+from instaclone.database.annotation import transactional
 
 class LocationStore:
+    @transactional
     async def add_location(self, user_id: int, name: str):
         existing_location_query = select(exists().where(LocationTag.name == name))
         existing_location = await SESSION.execute(existing_location_query)
@@ -77,6 +79,7 @@ class LocationStore:
         )
         return sorted_locations
     
+    @transactional
     async def update_citation(self, old_tag_id: int, new_tag_id: int):
         if (old_tag_id == new_tag_id) :
             raise SameTagError()
@@ -95,6 +98,7 @@ class LocationStore:
             await SESSION.rollback()
             raise FetchError()
 
+    @transactional
     async def update_user_location_status(self, user_id: int, old_tag_id: int, new_tag_id: int, expire_at: datetime):
         if old_tag_id is None:
             old_tag_id = 1
@@ -166,7 +170,7 @@ class LocationStore:
         locations = result.scalars().all()
         return [location.location_id for location in locations]
     
-
+    @transactional
     async def delete_tag_for_owner(self, tag_id: int, user_id: int):
         location_tag = await SESSION.scalar(select(LocationTag).where(LocationTag.location_id == tag_id, LocationTag.owner == user_id))
         if tag_id == 1 :

@@ -7,6 +7,7 @@ from instaclone.app.comment.models import Comment
 from instaclone.app.comment.errors import CommentNotFoundError, CommentPermissionError, CommentServerError
 from instaclone.app.post.errors import PostNotFoundError
 from instaclone.database.connection import SESSION
+from instaclone.database.annotation import transactional
 
 class CommentStore:
     async def get_comment_by_id(self, comment_id: int) -> Comment:
@@ -15,6 +16,7 @@ class CommentStore:
             raise CommentNotFoundError()
         return comment
         
+    @transactional
     async def create_comment(
         self, 
         user: User,
@@ -58,6 +60,7 @@ class CommentStore:
         
         return replies
     
+    @transactional
     async def edit_comment(self, user_id: int, comment_id: int, comment_text: str) -> Comment:
         comment = await self.get_comment_by_id(comment_id)
         if comment.user_id != user_id:
@@ -72,6 +75,7 @@ class CommentStore:
             await SESSION.rollback()
             raise CommentServerError() from e
     
+    @transactional
     async def delete_comment(self, user_id: int, comment_id: int) -> str:
         comment = await self.get_comment_by_id(comment_id)
 
