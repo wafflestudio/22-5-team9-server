@@ -25,11 +25,12 @@ class CommentStore:
         parent_id: int | None = None
     ) -> Comment:
         db_user = await SESSION.get(User, user.user_id)
+        db_post = await SESSION.get(Post, post.post_id)
         if parent_id:
             parent_comment = await self.get_comment_by_id(parent_id)
         else:
             parent_comment = None
-        comment = Comment(user=db_user, post=post, parent=parent_comment, comment_text=comment_text)
+        comment = Comment(user=db_user, post=db_post, parent=parent_comment, comment_text=comment_text)
         try:
             SESSION.add(comment)
             await SESSION.commit()
