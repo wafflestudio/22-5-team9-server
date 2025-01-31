@@ -149,8 +149,7 @@ class LocationStore:
             .join(Follower, Follower.following_id == User.user_id)
             .where(
                 Follower.follower_id == user_id, 
-                User.location_status == location_id,
-                User.location_expired_at > datetime.utcnow()
+                User.location_status == location_id
             )
             .order_by(User.username)
         )
