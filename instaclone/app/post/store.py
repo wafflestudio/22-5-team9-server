@@ -6,6 +6,7 @@ from instaclone.app.post.models import Post
 from instaclone.database.annotation import transactional
 from instaclone.app.medium.models import Medium
 from instaclone.app.user.models import User
+from instaclone.app.comment.models import Comment
 from datetime import datetime, timezone
 from instaclone.app.post.errors import PostEditPermissionError, PostNotFoundError, PostSaveFailedError, PostDeleteFailedError, PostDeletePermissionError
 
@@ -35,7 +36,15 @@ class PostStore:
     # @transactional
     async def delete_post(self, post_id: int) -> None:
         post = await self.get_post_by_id(post_id)
+        comments = await SESSION.execute(
+            select(Comment).where(Comment.post_id==post_id)
+        )
+        comments = comments.scalars().all()
+
         try:
+            if comments:
+                for comment in comments:
+                    await SESSION.delete(comment)
             if post:
                 await SESSION.delete(post)
                 await SESSION.commit()
