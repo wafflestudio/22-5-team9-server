@@ -24,10 +24,11 @@ class PostStore:
         return result.all()
     @transactional
     async def add_post(self, user: User, location: str | None, post_text: str | None, media: List[Medium]) -> Post:
-        post = Post(user_id=user.user_id, location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=user)
+        db_user = await SESSION.get(User, user.user_id)
+        post = Post(location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=db_user)
         try:
             SESSION.add(post)
-            await SESSION.commit()
+            await SESSION.flush()
             return post
         except:
             await SESSION.rollback()
