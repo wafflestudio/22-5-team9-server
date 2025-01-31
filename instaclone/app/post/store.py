@@ -1,6 +1,6 @@
 from typing import List, Sequence
 from instaclone.database.connection import SESSION
-from sqlalchemy.sql import select, desc
+from sqlalchemy.sql import select, desc, delete
 
 from instaclone.app.post.models import Post
 from instaclone.database.annotation import transactional
@@ -47,12 +47,12 @@ class PostStore:
                 for comment in comments:
                     await SESSION.delete(comment)
             if post:
-                await SESSION.delete(post)
+                await SESSION.execute(delete(Post).where(Post.post_id==post_id))
                 await SESSION.commit()
                 # await SESSION.flush()
-        except:
+        except Exception as e:
             await SESSION.rollback()
-            raise PostDeleteFailedError()
+            raise e
 
     @transactional
     async def update_post(
