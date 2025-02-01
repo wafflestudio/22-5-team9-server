@@ -14,7 +14,7 @@ class UserDetailResponse(BaseModel):
     username: str
     full_name: str
     email: EmailStr
-    phone_number: str
+    phone_number: str | None
     creation_date: date
     profile_image: str
     gender: str | None
