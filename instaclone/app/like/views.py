@@ -7,7 +7,7 @@ from instaclone.app.like.dto.responses import LikeResponse
 from instaclone.app.user.views import login_with_header
 from instaclone.app.user.models import User
 
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 like_router = APIRouter()
 
@@ -51,7 +51,7 @@ async def comment_like(
     return "SUCCESS"
 
 
-@like_router.post("/post_unlike", status_code=HTTP_200_OK)
+@like_router.delete("/post_unlike", status_code=HTTP_204_NO_CONTENT)
 async def post_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
@@ -64,7 +64,7 @@ async def post_unlike(
     )
     return "SUCCESS"
 
-@like_router.post("/story_unlike", status_code=HTTP_200_OK)
+@like_router.delete("/story_unlike", status_code=HTTP_204_NO_CONTENT)
 async def story_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
@@ -77,7 +77,7 @@ async def story_unlike(
     )
     return "SUCCESS"
 
-@like_router.post("/comment_unlike", status_code=HTTP_200_OK)
+@like_router.delete("/comment_unlike", status_code=HTTP_204_NO_CONTENT)
 async def comment_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
