@@ -27,7 +27,7 @@ test_router = APIRouter()
 class GoogleAuthRequest(BaseModel):
     credential: str
 
-@test_router.post("/api/auth/google")
+@test_router.post("/google")
 @transactional
 async def google_login(payload: GoogleAuthRequest):
     try:
