@@ -74,7 +74,7 @@ class StoryStore:
         media: List["Medium"],
         story_id: int
     ) -> Story:
-        query = select(Story).where(Story.story_id == story_id)
+        query = select(Story).where(Story.story_id == story_id, Story.expiration_date > datetime.now(timezone.utc))
         story = await SESSION.scalar(query)
 
         if not story:
