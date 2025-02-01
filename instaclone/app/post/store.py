@@ -1,6 +1,6 @@
 from typing import List, Sequence
 from instaclone.database.connection import SESSION
-from sqlalchemy.sql import select, desc
+from sqlalchemy.sql import select, desc, delete
 
 from instaclone.app.post.models import Post
 from instaclone.database.annotation import transactional
@@ -22,18 +22,19 @@ class PostStore:
     async def get_recent_posts_by_user(self, user_id: int) -> Sequence[Post]:
         result = await SESSION.scalars(select(Post).where(Post.user_id == user_id).order_by(desc(Post.creation_date)).limit(2))
         return result.all()
-    #@transactional
+    @transactional
     async def add_post(self, user: User, location: str | None, post_text: str | None, media: List[Medium]) -> Post:
-        post = Post(user_id=user.user_id, location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=user)
+        db_user = await SESSION.get(User, user.user_id)
+        post = Post(location=location, post_text=post_text, media=media, creation_date=datetime.now(timezone.utc), user=db_user)
         try:
             SESSION.add(post)
-            await SESSION.commit()
+            await SESSION.flush()
             return post
         except:
             await SESSION.rollback()
             raise PostSaveFailedError()
 
-    # @transactional
+    @transactional
     async def delete_post(self, post_id: int) -> None:
         post = await self.get_post_by_id(post_id)
         comments = await SESSION.execute(
@@ -46,13 +47,14 @@ class PostStore:
                 for comment in comments:
                     await SESSION.delete(comment)
             if post:
-                await SESSION.delete(post)
+                await SESSION.execute(delete(Post).where(Post.post_id==post_id))
                 await SESSION.commit()
                 # await SESSION.flush()
-        except:
+        except Exception as e:
             await SESSION.rollback()
-            raise PostDeleteFailedError()
+            raise e
 
+    @transactional
     async def update_post(
         self,
         post_id: int,

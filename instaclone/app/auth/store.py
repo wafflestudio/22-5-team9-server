@@ -2,9 +2,11 @@ from sqlalchemy.future import select
 from datetime import datetime
 from instaclone.app.user.models import User
 from instaclone.database.connection import SESSION
+from instaclone.database.annotation import transactional
 from sqlalchemy.exc import SQLAlchemyError
 from instaclone.common.errors import CommentServerError
 
+@transactional
 async def get_or_create_user_from_google(user_info: dict):
     try:
         # User DB - email 기반 사용자 정보 조회
