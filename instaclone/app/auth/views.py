@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi import Query
 from instaclone.database.google_settings import GOOGLE_SETTINGS
 from instaclone.app.auth.store import get_or_create_user_from_google
+from instaclone.app.auth.utils import generate_jwt_token
 
 GOOGLE_CLIENT_ID = GOOGLE_SETTINGS.client_id
 GOOGLE_CLIENT_SECRET = GOOGLE_SETTINGS.client_secret
@@ -61,5 +62,5 @@ async def callback(code: str = Query(..., description="Google Authorization Code
     token = generate_jwt_token(user)
 
     is_created_str = "true" if is_created else "false"
-    frontend_url = f"https://your-frontend-domain.com/dashboard?token={token}&is_created={is_created_str}"
+    frontend_url = f"https://d3l72zsyuz0duc.cloudfront.net/dashboard?token={token}&is_created={is_created_str}"
     return RedirectResponse(frontend_url)

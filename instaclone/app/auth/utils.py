@@ -15,8 +15,22 @@ from instaclone.common.errors import (
 from instaclone.app.dm.errors import MissingHeaderError, InvalidHeaderFormatError, InvalidTokenError
 
 import jwt
+import os
 
 SECRET_KEY = "secret_for_jwt"
+
+def generate_jwt_token(user_id: int, expires: timedelta) -> str:
+    payload = {
+        "sub": str(user_id),
+        "exp": datetime.now(timezone.utc) + expires,
+        "type": "access"
+    }
+    access_token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    
+    if isinstance(access_token, bytes):
+        access_token = access_token.decode("utf-8")
+    
+    return access_token
 
 def create_access_token(user_id: int, expires: timedelta) -> str:
     """
