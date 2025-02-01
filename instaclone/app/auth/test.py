@@ -10,6 +10,7 @@ from sqlalchemy.future import select
 from datetime import datetime, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from instaclone.app.user.dto.responses import UserDetailResponse
 from instaclone.database.annotation import transactional
 from instaclone.app.auth.utils import (
     create_access_token,
@@ -59,17 +60,7 @@ async def google_login(payload: GoogleAuthRequest):
         access_token = create_access_token(user.user_id, expires=timedelta(minutes=10))
         refresh_token = create_refresh_token(user.user_id, expires=timedelta(hours=24))
 
-        return {
-            "access_token": access_token,
-            "user": {
-                "id": user.user_id,
-                "password": user.password,
-                "email": user.email,
-                "username": user.username,
-                "fullname": user.full_name,
-                "profile_image": user.profile_image
-            }
-        }
+        return UserSigninResponse(access_token=access_token, refresh_token=refresh_token)
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid token")
     except Exception as e:
