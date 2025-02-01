@@ -39,6 +39,8 @@ async def google_login(payload: GoogleAuthRequest):
         name = id_info["name"]
         picture = id_info.get("picture")
 
+        username = email.split('@')[0]
+
         async with SESSION() as session:
             stmt = select(User).filter_by(email=email)
             result = await session.execute(stmt)
@@ -48,7 +50,7 @@ async def google_login(payload: GoogleAuthRequest):
                 user = User(
                     full_name=name,
                     email=email,
-                    username=name,
+                    username=username,
                     profile_image=picture,
                     password="default",
                     creation_date=datetime.today().date(),
