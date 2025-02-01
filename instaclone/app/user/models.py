@@ -25,7 +25,7 @@ class User(Base):
     # password
     password: Mapped[str] = mapped_column(String(128), nullable=False)
     # full_name : real name
-    full_name: Mapped[str] = mapped_column(String(30), nullable=False)
+    full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     # email
     email: Mapped[EmailStr] = mapped_column(String(100), unique=True)
     # phone_number : 010XXXXXXXX
