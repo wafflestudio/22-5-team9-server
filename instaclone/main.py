@@ -10,8 +10,7 @@ from instaclone.app.auth.test import test_router
 app = FastAPI()
 
 app.include_router(api_router, prefix="/api")
-app.include_router(google_oauth_router, prefix='/auth')
-app.include_router(test_router, prefix="/test")
+app.include_router(test_router, prefix="/auth")
 
 origins = [
     "https://d3l72zsyuz0duc.cloudfront.net",
