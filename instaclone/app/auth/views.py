@@ -64,3 +64,29 @@ async def callback(code: str = Query(..., description="Google Authorization Code
         "user_password": user.password,
         "is_created": is_created
     }
+
+@google_oauth_router.get("/google")
+async def google_auth(access_token: str = Query(..., description="Access Token")):
+    # Access token을 사용해 Google 사용자 정보 요청
+    user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    async with httpx.AsyncClient() as client:
+        user_info_response = await client.get(user_info_url, headers=headers)
+        if user_info_response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to retrieve user info")
+        
+        user_info = user_info_response.json()
+
+    response = await get_or_create_user_from_google(user_info)
+    
+    # user와 is_created를 각각 받음
+    user = response['user']
+    is_created = response['is_created']
+    return {
+        "user_info": user_info,
+        "user_id": user.user_id,
+        "username": user.username,
+        "user_password": user.password,
+        "is_created": is_created
+    }
