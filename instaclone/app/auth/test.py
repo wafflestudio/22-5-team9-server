@@ -38,7 +38,7 @@ async def google_login(payload: GoogleAuthRequest):
         
         email = id_info["email"]
         name = id_info["name"]
-        picture = id_info.get("picture")
+        picture = "media_uploads/default.jpg"
 
         username = "social_" + email.split('@')[0]
         random_uuid = uuid.uuid4()
