@@ -1,4 +1,3 @@
-# README in progress...
 # Insnugram Backend
 ![GitHub Open PRs](https://img.shields.io/github/issues-pr/wafflestudio/22-5-team9-web?label=open%20PRs&color=blue&style=flat-square)
 ![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/wafflestudio/22-5-team9-web?label=closed%20PRs&color=green&style=flat-square)
