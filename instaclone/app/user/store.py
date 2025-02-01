@@ -26,6 +26,7 @@ class UserStore:
             raise UserDoesNotExistError()
         return user
 
+    @transactional
     async def edit_user(
         self, 
         user: User,
@@ -63,6 +64,7 @@ class UserStore:
             await SESSION.rollback()
             raise UserAddError
     
+    @transactional
     async def add_user(
         self,
         username: str,

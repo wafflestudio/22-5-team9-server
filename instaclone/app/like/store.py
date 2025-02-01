@@ -1,6 +1,7 @@
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from instaclone.database.connection import SESSION
+from instaclone.database.annotation import transactional
 from instaclone.common.errors import InvalidFieldFormatError
 from instaclone.app.user.models import User
 from instaclone.app.story.models import Story
@@ -14,6 +15,7 @@ from instaclone.app.like.errors import (
 )
 
 class LikeStore:
+    @transactional
     async def add_like(self, user: User, content_id: int, like_type: str) -> object:
         # 각 좋아요 테이블을 get_like_table을 통해 선택
         table = self.get_like_table(like_type)  
@@ -52,7 +54,8 @@ class LikeStore:
             raise LikeCreationError()
 
         return new_like
-        
+    
+    @transactional
     async def remove_like(self, user: User, content_id: int, like_type: str) -> None:
         table = self.get_like_table(like_type)
         existing_like = await SESSION.execute(

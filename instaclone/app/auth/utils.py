@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from sqlalchemy.sql import select
 from instaclone.database.connection import SESSION
+from instaclone.database.annotation import transactional
 from instaclone.app.user.models import BlockedToken
 from fastapi import WebSocket
 
@@ -95,6 +96,7 @@ async def refresh_access_token(refresh_token: str, access_expires: timedelta, re
 
     return access_token, refresh_token
 
+@transactional
 async def block_refresh_token(refresh_token: str) -> str:
     """
     주어진 refresh token을 만료시킵니다.

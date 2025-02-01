@@ -2,6 +2,7 @@ from typing import Sequence, Optional, List
 from sqlalchemy.sql import select, delete, or_
 
 from instaclone.database.connection import SESSION
+from instaclone.database.annotation import transactional
 from instaclone.app.dm.models import Message
 from instaclone.app.dm.errors import MessageNotFoundError, MessagePermissionError
 
@@ -20,6 +21,7 @@ class DMStore:
         result = await SESSION.scalars(select(Message).where(Message.receiver_id == user_id))
         return result.all()
 
+    @transactional
     async def create_message(self, sender_id: int, receiver_id: int, text: str) -> Optional[Message]:
         message = Message(sender_id=sender_id, receiver_id=receiver_id, text=text)
         try:
@@ -29,6 +31,7 @@ class DMStore:
         except:
             await SESSION.rollback()
 
+    @transactional
     async def delete_message(self, user_id: int, message_id: int) -> None:
         message = await self.get_message_from_id(message_id)
         if not message:

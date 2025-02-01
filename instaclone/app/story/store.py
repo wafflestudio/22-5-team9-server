@@ -8,6 +8,7 @@ from instaclone.app.user.models import User
 from instaclone.app.medium.models import Medium
 from instaclone.app.story.models import Story, StoryView, Highlight, HighlightStories, HighlightSubusers
 from instaclone.database.connection import SESSION
+from instaclone.database.annotation import transactional
 from instaclone.app.story.errors import StoryNotExistsError, StoryPermissionError, UserNotFoundError, HighlightDNEError, StoryViewPermissionError, StoryInHighlightsError, HighlightNameError, HighlightPermissionError, UserAddedError, CannotRemoveError, CannotChangeAdminError, CannotChangeHighlightNameError, StoryPermissionAccessError, StoryAddError, StoryDeleteError, StoryViewRecordError
 from instaclone.common.errors import DebugError
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
@@ -19,7 +20,7 @@ class StoryStore:
             raise UserNotFoundError()
         return user
 
-    # @transactional
+    @transactional
     async def add_story(
         self, 
         user: User,
@@ -66,7 +67,7 @@ class StoryStore:
 
         return story
     
-    # @transactional
+    @transactional
     async def edit_story(
         self,
         user: User,
@@ -88,7 +89,7 @@ class StoryStore:
             await SESSION.rollback()
             raise StoryAddError()
 
-    # @transactional
+    @transactional
     async def delete_story(
         self,
         user: User,
@@ -112,6 +113,7 @@ class StoryStore:
             await SESSION.rollback()
             raise StoryDeleteError()
     
+    @transactional
     async def create_highlight(
             self,
             user: User,
@@ -142,6 +144,7 @@ class StoryStore:
             raise DebugError(e.status_code, e.detail)
         return highlight
     
+    @transactional
     async def add_story_highlight(
             self,
             user: User,
@@ -194,6 +197,7 @@ class StoryStore:
             raise DebugError(e.status_code, e.detail)
         return highlight
     
+    @transactional
     async def add_init_user_highlight(
             self,
             user: User,
@@ -211,6 +215,7 @@ class StoryStore:
         
         return highlight
     
+    @transactional
     async def add_user_highlight(
             self,
             user: User,
@@ -266,6 +271,7 @@ class StoryStore:
 
         return highlight
 
+    @transactional
     async def delete_highlight(
             self,
             user: User,
@@ -291,7 +297,8 @@ class StoryStore:
         except Exception as e:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Highlight could not be deleted")
-        
+    
+    @transactional
     async def unsave_story(
             self,
             user: User,
@@ -344,6 +351,7 @@ class StoryStore:
             await SESSION.rollback()
             raise DebugError(HTTP_500_INTERNAL_SERVER_ERROR, "Story could not be removed from highlight")
     
+    @transactional
     async def remove_all_highlight_users(
             self,
             highlight: Highlight
@@ -356,7 +364,8 @@ class StoryStore:
         except HTTPException as e:
             await SESSION.rollback()
             raise DebugError(e.status_code, e.detail)
-        
+    
+    @transactional
     async def remove_highlight_user(
             self,
             user: User,
@@ -408,7 +417,8 @@ class StoryStore:
             await SESSION.refresh(highlight)
         except HTTPException as e:
             raise DebugError(e.status_code, e.detail)
-        
+    
+    @transactional
     async def change_highlight_admin(
             self,
             user: User,
@@ -441,6 +451,7 @@ class StoryStore:
         
         return highlight
     
+    @transactional
     async def change_highlight_name(
             self,
             user: User,
@@ -474,7 +485,7 @@ class StoryStore:
         
         return highlight
 
-        
+    @transactional
     async def clean_up(self,
                         user: User,
                         story_id: int):
@@ -485,6 +496,7 @@ class StoryStore:
         for highlight_id in highlight_ids:
             await self.unsave_story(user=user, highlight_id=highlight_id, story_id=story_id)
 
+    @transactional
     async def record_story_view(
         self,
         story_id: int,
