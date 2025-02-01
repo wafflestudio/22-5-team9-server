@@ -1,6 +1,7 @@
 import os
 import httpx
 import jwt
+import uuid
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from instaclone.database.google_settings import GOOGLE_SETTINGS
@@ -40,6 +41,8 @@ async def google_login(payload: GoogleAuthRequest):
         picture = id_info.get("picture")
 
         username = email.split('@')[0]
+        random_uuid = uuid.uuid4()
+        password = str(random_uuid)
 
         async with SESSION() as session:
             stmt = select(User).filter_by(email=email)
@@ -52,7 +55,7 @@ async def google_login(payload: GoogleAuthRequest):
                     email=email,
                     username=username,
                     profile_image=picture,
-                    password="default",
+                    password=password,
                     creation_date=datetime.today().date(),
                     social=True
                 )
