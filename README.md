@@ -1,8 +1,8 @@
 # README in progress...
 # Insnugram Backend
-![GitHub Open PRs](https://img.shields.io/github/issues-pr/wafflestudio/22-5-team9-web?label=open%20PRs&color=blue)
-![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/wafflestudio/22-5-team9-web?label=closed%20PRs&color=green)
-![GitHub last commit](https://img.shields.io/github/last-commit/wafflestudio/22-5-team9-web?color=yellow)
+![GitHub Open PRs](https://img.shields.io/github/issues-pr/wafflestudio/22-5-team9-web?label=open%20PRs&color=blue&style=flat-square)
+![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/wafflestudio/22-5-team9-web?label=closed%20PRs&color=green&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/wafflestudio/22-5-team9-web?color=yellow&style=flat-square)
 
 ## 📌 프로젝트 소개
 
@@ -19,7 +19,7 @@
         <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
     </a>
     <a href="https://www.uvicorn.org/">
-        <img src="https://img.shields.io/badge/Uvicorn-Black?style=for-the-badge"/>
+        <img src="https://img.shields.io/badge/Uvicorn-499848?style=for-the-badge&logo=gunicorn&logoColor=white"/>
     </a>
 </div>
 
@@ -33,7 +33,7 @@
 ### **인프라**
 <div>
     <a href="https://aws.amazon.com/ec2/">
-        <img src="https://img.shields.io/badge/AMAZON%20EC2-F8991D?style=for-the-badge&logo=amazonec2&logoColor=white"/>
+        <img src="https://img.shields.io/badge/AMAZON%20EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white"/>
     </a>
     <a href="https://aws.amazon.com/rds/">
         <img src="https://img.shields.io/badge/AMAZON%20RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white"/>
@@ -83,3 +83,20 @@
 ├── 💲 .env.prod             # 배포환경설정
 ├── 📜 poetry.lock           # 패키지 관리
 └── 📜 pypoetry.toml         # 패키지 관리
+```
+
+## 개발진
+<div>
+    <a href="https://aws.amazon.com/ec2/">
+        <img src="https://custom-icon-badges.demolab.com/badge/cloNoey-곽승연-F8991D?style=for-the-badge&logo=person-fill&logoColor=white"/>
+    </a>
+    <a href="https://aws.amazon.com/ec2/">
+        <img src="https://custom-icon-badges.demolab.com/badge/dida0423-김다인-DEF81D?style=for-the-badge&logo=person-fill&logoColor=white"/>
+    </a>
+    <a href="https://aws.amazon.com/ec2/">
+        <img src="https://custom-icon-badges.demolab.com/badge/MunJaeyoung-문재영-1DC9F8?style=for-the-badge&logo=person-fill&logoColor=white"/>
+    </a>
+    <a href="https://aws.amazon.com/ec2/">
+        <img src="https://custom-icon-badges.demolab.com/badge/b1lly13-최성환-A81DF8?style=for-the-badge&logo=person-fill&logoColor=white"/>
+    </a>
+</div>
