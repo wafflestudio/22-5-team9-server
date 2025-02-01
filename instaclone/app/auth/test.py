@@ -10,6 +10,7 @@ from sqlalchemy.future import select
 from datetime import datetime, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from instaclone.database.annotation import transactional
 
 GOOGLE_CLIENT_ID = GOOGLE_SETTINGS.client_id
 JWT_SECRET = os.getenv("JWT_SECRET", "your_jwt_secret")
@@ -27,6 +28,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return jwt.encode(to_encode, JWT_SECRET, algorithm="HS256")
 
 @test_router.post("/api/auth/google")
+@transactional
 async def google_login(payload: GoogleAuthRequest):
     try:
         # Verify Google token
