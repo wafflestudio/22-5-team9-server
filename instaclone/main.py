@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from instaclone.api import api_router
-from instaclone.app.auth.views import google_oauth_router
 from instaclone.database.middleware import DefaultSessionMiddleware
 from instaclone.app.auth.test import test_router
 
