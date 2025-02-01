@@ -35,7 +35,7 @@ def validate_username(username: str) -> str:
 def validate_full_name(full_name: str) -> str:
     full_name = re.sub(r'\s+', ' ', full_name.strip())
     
-    if not re.match(r'^[a-zA-Z]+(?: [a-zA-Z]+)*$', full_name):  # Korean name?
+    if not re.match(r'^[a-zA-Z\uac00-\ud7af]+(?: [a-zA-Z\uac00-\ud7af]+)*$', full_name):  # Korean name?
         raise InvalidFieldFormatError("Full name must contain only alphabetic characters and spaces.")
     
     return full_name
