@@ -90,23 +90,66 @@
 └── 📜 pypoetry.toml         # 패키지 관리
 ```
 
-## 개발진
+## 👩🏻‍💻👩🏻‍💻🧑🏻‍💻🧑🏻‍💻 개발진
 <div>
     <a href="https://aws.amazon.com/ec2/">
         <img src="https://custom-icon-badges.demolab.com/badge/cloNoey-곽승연-F8991D?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
+</div>
+
+### 구현 기능
+- Initialize Database
+- Social Login
+- Follow
+- Like
+- Location Tag (추가기능)
+- 각종 오류 해결
+<br>
+<div>
     <a href="https://aws.amazon.com/ec2/">
         <img src="https://custom-icon-badges.demolab.com/badge/dida0423-김다인-DEF81D?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
+</div>
+
+### 구현 기능
+- User
+- Post
+- Explore
+- Integrate Story & Medium
+- Highlight
+- Shared Highlights (추가기능)
+- 각종 오류 해결
+<br>
+<div>
     <a href="https://aws.amazon.com/ec2/">
         <img src="https://custom-icon-badges.demolab.com/badge/MunJaeyoung-문재영-1DC9F8?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
+</div>
+
+### 구현 기능
+- Initialize Project
+- Login
+- DM
+- Story
+- Comment
+- 각종 오류 해결
+<br>
+<div>
     <a href="https://aws.amazon.com/ec2/">
         <img src="https://custom-icon-badges.demolab.com/badge/b1lly13-최성환-A81DF8?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
 </div>
 
-## 배포 링크
+### 구현 기능
+- ER Diagram
+- Post
+- Medium
+- Story Views
+- User Search
+- 각종 오류 해결
+<br>
+
+## 🔗 배포 링크
 <div>
     <a href="https://d3l72zsyuz0duc.cloudfront.net/"/>
         <img width="203" alt="image" src="https://github.com/user-attachments/assets/76ff852d-d2a0-493d-aace-485a981ab411" alt="Front"/>
