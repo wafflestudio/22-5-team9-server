@@ -47,6 +47,7 @@ async def google_login(payload: GoogleAuthRequest):
 
             if not user:
                 user = User(
+                    full_name=name,
                     email=email,
                     username=name,
                     profile_image=picture,
@@ -64,8 +65,10 @@ async def google_login(payload: GoogleAuthRequest):
             "access_token": access_token,
             "user": {
                 "id": user.user_id,
+                "password": user.password,
                 "email": user.email,
                 "username": user.username,
+                "fullname": user.full_name,
                 "profile_image": user.profile_image
             }
         }
