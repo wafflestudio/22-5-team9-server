@@ -11,21 +11,19 @@ from datetime import datetime, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from instaclone.database.annotation import transactional
+from instaclone.app.auth.utils import (
+    create_access_token,
+    create_refresh_token,
+    refresh_access_token
+)
 
 GOOGLE_CLIENT_ID = GOOGLE_SETTINGS.client_id
-JWT_SECRET = os.getenv("JWT_SECRET", "your_jwt_secret")
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 test_router = APIRouter()
 
 class GoogleAuthRequest(BaseModel):
     credential: str
-
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, JWT_SECRET, algorithm="HS256")
 
 @test_router.post("/api/auth/google")
 @transactional
@@ -58,8 +56,8 @@ async def google_login(payload: GoogleAuthRequest):
                 session.add(user)
                 await session.commit()
 
-        # Generate JWT tokens
-        access_token = create_access_token({"sub": user.user_id})
+        access_token = create_access_token(user.user_id, expires=timedelta(minutes=10))
+        refresh_token = create_refresh_token(user.user_id, expires=timedelta(hours=24))
 
         return {
             "access_token": access_token,
