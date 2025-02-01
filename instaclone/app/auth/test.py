@@ -10,7 +10,7 @@ from sqlalchemy.future import select
 from datetime import datetime, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from instaclone.app.user.dto.responses import UserDetailResponse
+from instaclone.app.user.dto.responses import UserSigninResponse
 from instaclone.database.annotation import transactional
 from instaclone.app.auth.utils import (
     create_access_token,
