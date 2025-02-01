@@ -16,8 +16,7 @@ google_oauth_router = APIRouter()
 async def login():
     # Google OAuth 인증 URL 생성
     google_auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&response_type=code&scope=email%20profile"
-    return RedirectResponse(google_auth_url)
-
+    return google_auth_url
 
 
 @google_oauth_router.get("/callback")
