@@ -15,30 +15,46 @@
 
 ### **백엔드 프레임워크**
 <div>
-    <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
-    <img src="https://img.shields.io/badge/Uvicorn-Black?style=for-the-badge"/>
+    <a href="https://fastapi.tiangolo.com/">
+        <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
+    </a>
+    <a href="https://www.uvicorn.org/">
+        <img src="https://img.shields.io/badge/Uvicorn-Black?style=for-the-badge"/>
+    </a>
 </div>
 
 ### **데이터베이스**
 <div>
-    <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
+    <a href="https://www.mysql.com/">
+        <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
+    </a>
 </div>
 
 ### **인프라**
 <div>
-    <img src="https://img.shields.io/badge/AMAZON%20EC2-F8991D?style=for-the-badge&logo=amazonec2&logoColor=white"/>
-    <img src="https://img.shields.io/badge/AMAZON%20RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white"/>
+    <a href="https://aws.amazon.com/ec2/">
+        <img src="https://img.shields.io/badge/AMAZON%20EC2-F8991D?style=for-the-badge&logo=amazonec2&logoColor=white"/>
+    </a>
+    <a href="https://aws.amazon.com/rds/">
+        <img src="https://img.shields.io/badge/AMAZON%20RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white"/>
+    </a>
 </div>
 
 ### **인증**
 <div>
-    <img src="https://img.shields.io/badge/Google%20OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white"/>
+    <a href="https://developers.google.com/identity/sign-in/web/sign-in">
+        <img src="https://img.shields.io/badge/Google%20OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white"/>
+    </a>
 </div>
 
 ### **커뮤니케이션**
 <div>
-    <img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white"/>
-    <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
+    <a href="https://slack.com/">
+        <img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white"/>
+    </a>
+    <a href="https://www.notion.so/">
+        <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
+    </a>
 </div>
 
 ## 
