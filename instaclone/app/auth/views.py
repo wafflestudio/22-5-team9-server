@@ -52,15 +52,14 @@ async def callback(code: str = Query(..., description="Google Authorization Code
         
         user_info = user_info_response.json()
 
-    response = await get_or_create_user_from_google(user_info)
-    
-    # user와 is_created를 각각 받음
-    user = response['user']
-    is_created = response['is_created']
-    return {
-        "user_info": user_info,
-        "user_id": user.user_id,
-        "username": user.username,
-        "user_password": user.password,
-        "is_created": is_created
-    }
+    # db에서 유저를 retrieve하거나 create하기
+    response_data = await get_or_create_user_from_google(user_info)
+    user = response_data['user']
+    is_created = response_data['is_created']
+
+    # 유저를 토큰 만들고
+    token = generate_jwt_token(user)
+
+    is_created_str = "true" if is_created else "false"
+    frontend_url = f"https://your-frontend-domain.com/dashboard?token={token}&is_created={is_created_str}"
+    return RedirectResponse(frontend_url)
