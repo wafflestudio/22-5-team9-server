@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from pydantic import BaseModel
 from starlette import datastructures
-
+from instaclone.database.annotation import transactional
 from instaclone.app.user.views import login_with_header
 from instaclone.app.user.models import User
 from instaclone.app.story.dto.requests import StoryCreateRequest, StoryEditRequest, HighlightCreateRequest, StorySaveHighlightRequest
@@ -73,6 +73,7 @@ async def delete_story(
 
 # Create highlight and add new story
 @story_router.post("/highlight/new/{story_id}", status_code=HTTP_201_CREATED)
+@transactional
 async def add_new_highlight(
     user: Annotated[User, Depends(login_with_header)],
     story_id: int,
