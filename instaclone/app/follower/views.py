@@ -53,10 +53,8 @@ async def unfollow(
     follower_service: FollowService = Depends(),
     follow_request: FollowRequest = Depends(),
     user: User = Depends(login_with_header),
-) -> str:
+) -> None:
     await follower_service.unfollow(
         user=user,
         follow_id=follow_request.follow_id
     )
-    return "SUCCESS"
-

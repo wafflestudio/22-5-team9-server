@@ -56,39 +56,36 @@ async def post_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
     user: User = Depends(login_with_header),
-) -> str:
+) -> None:
     await like_service.unlike(
         user=user,
         content_id=like_request.content_id,
         like_type='post'
     )
-    return "SUCCESS"
 
 @like_router.delete("/story_unlike", status_code=HTTP_204_NO_CONTENT)
 async def story_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
     user: User = Depends(login_with_header),
-) -> str:
+) -> None:
     await like_service.unlike(
         user=user,
         content_id=like_request.content_id,
         like_type='story'
     )
-    return "SUCCESS"
 
 @like_router.delete("/comment_unlike", status_code=HTTP_204_NO_CONTENT)
 async def comment_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
     user: User = Depends(login_with_header),
-) -> str:
+) -> None:
     await like_service.unlike(
         user=user,
         content_id=like_request.content_id,
         like_type='comment'
     )
-    return "SUCCESS"
 
 
 @like_router.get("/likers", status_code=HTTP_200_OK)
