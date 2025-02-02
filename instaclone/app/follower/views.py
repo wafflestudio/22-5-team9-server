@@ -48,7 +48,7 @@ async def follow(
         follow_id=follow_request.follow_id)
     return "SUCCESS"
 
-@follower_router.delete("/unfollow", status_code=HTTP_204_NO_CONTENT)
+@follower_router.post("/unfollow", status_code=HTTP_200_OK)
 async def unfollow(
     follower_service: FollowService = Depends(),
     follow_request: FollowRequest = Depends(),
