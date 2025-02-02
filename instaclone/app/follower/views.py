@@ -11,7 +11,7 @@ from instaclone.app.follower.dto.requests import FollowRequest
 from instaclone.app.follower.service import FollowService
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 follower_router = APIRouter()
 security = HTTPBearer()
@@ -48,7 +48,7 @@ async def follow(
         follow_id=follow_request.follow_id)
     return "SUCCESS"
 
-@follower_router.post("/unfollow", status_code=HTTP_200_OK)
+@follower_router.delete("/unfollow", status_code=HTTP_204_NO_CONTENT)
 async def unfollow(
     follower_service: FollowService = Depends(),
     follow_request: FollowRequest = Depends(),
