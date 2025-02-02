@@ -92,7 +92,7 @@
 
 ## 👩🏻‍💻👩🏻‍💻🧑🏻‍💻🧑🏻‍💻 개발진
 <div>
-    <a href="https://aws.amazon.com/ec2/">
+    <a href="https://github.com/cloNoey">
         <img src="https://custom-icon-badges.demolab.com/badge/cloNoey-곽승연-F8991D?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
 </div>
@@ -106,7 +106,7 @@
 - 각종 오류 해결
 <br>
 <div>
-    <a href="https://aws.amazon.com/ec2/">
+    <a href="https://github.com/dida0423">
         <img src="https://custom-icon-badges.demolab.com/badge/dida0423-김다인-DEF81D?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
 </div>
@@ -121,7 +121,7 @@
 - 각종 오류 해결
 <br>
 <div>
-    <a href="https://aws.amazon.com/ec2/">
+    <a href="https://github.com/MunJaeyoung">
         <img src="https://custom-icon-badges.demolab.com/badge/MunJaeyoung-문재영-1DC9F8?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
 </div>
@@ -135,7 +135,7 @@
 - 각종 오류 해결
 <br>
 <div>
-    <a href="https://aws.amazon.com/ec2/">
+    <a href="https://github.com/b1lly13">
         <img src="https://custom-icon-badges.demolab.com/badge/b1lly13-최성환-A81DF8?style=for-the-badge&logo=person-fill&logoColor=white"/>
     </a>
 </div>
