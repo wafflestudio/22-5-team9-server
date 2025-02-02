@@ -51,7 +51,7 @@ async def comment_like(
     return "SUCCESS"
 
 
-@like_router.delete("/post_unlike", status_code=HTTP_204_NO_CONTENT)
+@like_router.post("/post_unlike", status_code=HTTP_200_OK)
 async def post_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
@@ -63,7 +63,7 @@ async def post_unlike(
         like_type='post'
     )
 
-@like_router.delete("/story_unlike", status_code=HTTP_204_NO_CONTENT)
+@like_router.post("/story_unlike", status_code=HTTP_200_OK)
 async def story_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
@@ -75,7 +75,7 @@ async def story_unlike(
         like_type='story'
     )
 
-@like_router.delete("/comment_unlike", status_code=HTTP_204_NO_CONTENT)
+@like_router.post("/comment_unlike", status_code=HTTP_200_OK)
 async def comment_unlike(
     like_service: LikeService = Depends(),
     like_request: LikeRequest = Depends(),
